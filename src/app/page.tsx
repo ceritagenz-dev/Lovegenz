@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { QUIZ_QUESTIONS } from "@/lib/questions";
 import HeartbeatProgress from "@/components/HeartbeatProgress";
 import QuestionCard from "@/components/QuestionCard";
 import ShareButtons from "@/components/ShareButtons";
+
+const STORAGE_KEY = "sensusBucin2026_hasil";
 
 type Stage = "landing" | "nama" | "quiz" | "loading" | "hasil" | "error";
 
@@ -24,11 +26,28 @@ export default function Home() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [hasil, setHasil] = useState<HasilData | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const submittingRef = useRef(false);
+
+  // Cek apakah device ini udah pernah submit sebelumnya.
+  // Kalau udah, langsung tampilin hasil lama, gak boleh isi ulang dari awal.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: HasilData = JSON.parse(saved);
+        setHasil(parsed);
+        setStage("hasil");
+      }
+    } catch {
+      // localStorage gak available / data corrupt, biarin user mulai normal
+    }
+  }, []);
 
   const totalQuestions = QUIZ_QUESTIONS.length;
   const question = QUIZ_QUESTIONS[currentQ];
 
   const handleSelectOption = (label: string) => {
+    if (submittingRef.current) return;
     const updated = { ...answers, [question.id]: label };
     setAnswers(updated);
 
@@ -42,6 +61,8 @@ export default function Home() {
   };
 
   const submitQuiz = async (finalAnswers: Record<number, string>) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setStage("loading");
     try {
       const res = await fetch("/api/submit", {
@@ -53,13 +74,20 @@ export default function Home() {
       if (!res.ok) {
         setErrorMsg(data.error || "Gagal mengirim hasil.");
         setStage("error");
+        submittingRef.current = false;
         return;
       }
       setHasil(data);
       setStage("hasil");
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {
+        // gagal nyimpen ke localStorage gpp, gak fatal, cuma device gak ke-block
+      }
     } catch {
       setErrorMsg("Koneksi gagal. Coba lagi.");
       setStage("error");
+      submittingRef.current = false;
     }
   };
 
@@ -256,12 +284,6 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
       >
         Lihat Hasil Responden Lain
       </Link>
-      <button
-        onClick={() => window.location.reload()}
-        className="text-white/80 text-sm font-medium underline-offset-2 hover:underline"
-      >
-        Isi ulang sensus
-      </button>
     </div>
   );
 }
