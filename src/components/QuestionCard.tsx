@@ -9,6 +9,7 @@ type Props = {
 };
 
 export default function QuestionCard({ question, selected, onSelect }: Props) {
+  const locked = selected !== undefined;
   return (
     <div className="bg-white rounded-3xl card-shadow p-5 sm:p-7 w-full">
       <h2 className="font-display text-xl sm:text-2xl text-bucin-deepred font-semibold leading-snug mb-5">
@@ -20,8 +21,9 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
           return (
             <button
               key={opt.label}
-              onClick={() => onSelect(opt.label)}
-              className={`group flex items-start gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 active:scale-[0.98] ${
+              onClick={() => !locked && onSelect(opt.label)}
+              disabled={locked}
+              className={`group flex items-start gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 active:scale-[0.98] disabled:active:scale-100 ${
                 isSelected
                   ? "border-bucin-pink bg-bucin-cream"
                   : "border-gray-100 bg-white hover:border-bucin-pink/40 hover:bg-bucin-cream/50"
