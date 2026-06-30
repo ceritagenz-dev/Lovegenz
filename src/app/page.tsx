@@ -175,11 +175,10 @@ function LandingScreen({ onStart }: { onStart: () => void }) {
         2026
       </h1>
       <p className="text-white/90 text-base leading-relaxed px-2">
-        40 pertanyaan jujur-jujuran. Gak ada jawaban benar atau salah, cuma
-        ada jawaban yang bikin lo malu sendiri.
+        40 pertanyaan jujur-jujuran. No filter, no boong-boongan.
       </p>
       <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-white/90 text-sm font-medium">
-        20 golongan bucin · Hasil random tiap golongan
+        20 tipe bucin · Tiap orang beda hasil
       </div>
       <button
         onClick={onStart}
@@ -191,7 +190,7 @@ function LandingScreen({ onStart }: { onStart: () => void }) {
         href="/hasil"
         className="text-white/80 text-sm font-medium underline-offset-2 hover:underline"
       >
-        Lihat hasil responden lain
+        Intip hasil orang lain dulu
       </Link>
     </div>
   );
@@ -212,9 +211,6 @@ function NamaScreen({
       <h2 className="font-display text-2xl sm:text-3xl font-bold text-white text-shadow-soft">
         Siapa nama lo?
       </h2>
-      <p className="text-white/85 text-sm px-2">
-        Nama ini bakal muncul di hasil sensus dan bisa diliat responden lain.
-      </p>
       <input
         autoFocus
         type="text"
