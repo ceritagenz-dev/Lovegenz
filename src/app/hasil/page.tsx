@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type ResultItem = {
@@ -15,39 +15,19 @@ type ResultItem = {
 
 export default function HasilPage() {
   const [results, setResults] = useState<ResultItem[]>([]);
-  const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-
-  const fetchPage = useCallback(async (pageNum: number) => {
-    const res = await fetch(`/api/results?page=${pageNum}`, {
-      cache: "no-store",
-    });
-    const data = await res.json();
-    return data;
-  }, []);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const data = await fetchPage(0);
+      const res = await fetch(`/api/results?page=0`, { cache: "no-store" });
+      const data = await res.json();
       setResults(data.results || []);
       setTotal(data.total || 0);
       setLoading(false);
     })();
-  }, [fetchPage]);
-
-  const handleLoadMore = async () => {
-    setLoadingMore(true);
-    const nextPage = page + 1;
-    const data = await fetchPage(nextPage);
-    setResults((prev) => [...prev, ...(data.results || [])]);
-    setPage(nextPage);
-    setLoadingMore(false);
-  };
-
-  const hasMore = results.length < total;
+  }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-bucin-red via-bucin-purple to-bucin-deepred px-4 py-8">
@@ -69,7 +49,7 @@ export default function HasilPage() {
             Hasil Sensus Bucin
           </h1>
           <p className="text-white/80 text-sm mt-1">
-            Daftar lengkap, yang paling baru ngisi muncul di atas
+            10 hasil terbaru, yang paling baru ngisi muncul di atas
           </p>
         </div>
 
@@ -99,16 +79,6 @@ export default function HasilPage() {
             <ResultCard key={item.id} item={item} />
           ))}
         </div>
-
-        {hasMore && (
-          <button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            className="font-display bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3.5 rounded-full mt-2 disabled:opacity-60"
-          >
-            {loadingMore ? "Memuat..." : "Muat lebih banyak"}
-          </button>
-        )}
       </div>
     </main>
   );
