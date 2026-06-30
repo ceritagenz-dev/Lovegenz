@@ -21,7 +21,9 @@ export default function HasilPage() {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const fetchPage = useCallback(async (pageNum: number) => {
-    const res = await fetch(`/api/results?page=${pageNum}`);
+    const res = await fetch(`/api/results?page=${pageNum}`, {
+      cache: "no-store",
+    });
     const data = await res.json();
     return data;
   }, []);
