@@ -45,7 +45,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
 
   return (
     <div className="w-full">
-      <p className="font-display text-center text-bucin-deepred font-semibold mb-3 text-sm">
+      <p className="font-display text-center text-white font-semibold mb-3 text-sm text-shadow-soft">
         Bagikan hasil sensus lo
       </p>
       <div className="grid grid-cols-3 gap-2.5">
@@ -77,7 +77,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
       </div>
       <button
         onClick={handleCopy}
-        className="w-full mt-2.5 text-center text-sm text-bucin-deepred/70 font-medium py-2"
+        className="w-full mt-2.5 text-center text-sm text-white/90 font-semibold py-2 underline-offset-2 hover:underline"
       >
         {copied ? "Tersalin ✓" : "Atau salin teks & link"}
       </button>
