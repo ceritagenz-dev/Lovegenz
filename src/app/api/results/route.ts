@@ -35,12 +35,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      results: data,
-      total: count ?? 0,
-      page,
-      pageSize,
-    });
+    return NextResponse.json(
+      {
+        results: data,
+        total: count ?? 0,
+        page,
+        pageSize,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        },
+      }
+    );
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("Results error:", err);
