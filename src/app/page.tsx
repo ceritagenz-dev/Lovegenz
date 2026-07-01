@@ -285,20 +285,10 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         href="https://ceritagenz.vercel.app/"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full flex items-center gap-4 bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl px-5 py-4 active:scale-95 transition-transform"
+        className="w-full flex items-center justify-center gap-2.5 bg-[#6C63FF] text-white font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform"
       >
-        <span className="text-3xl flex-shrink-0">🗳️</span>
-        <div className="text-left">
-          <p className="text-white/60 text-xs font-semibold uppercase tracking-wide mb-0.5">
-            Coba juga
-          </p>
-          <p className="font-display text-white font-bold text-base leading-tight">
-            Sensus Warganet 2026
-          </p>
-          <p className="text-white/75 text-xs mt-0.5">
-            Lu golongan apa? →
-          </p>
-        </div>
+        <span className="text-xl">🗳️</span>
+        Lo warganet golongan apa? Cek sekarang →
       </a>
     </div>
   );
