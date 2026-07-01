@@ -79,6 +79,28 @@ export default function HasilPage() {
             <ResultCard key={item.id} item={item} />
           ))}
         </div>
+
+        {results.length > 0 && (
+          <a
+            href="https://ceritagenz.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-4 bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl px-5 py-4 active:scale-95 transition-transform mt-2"
+          >
+            <span className="text-3xl flex-shrink-0">🗳️</span>
+            <div className="text-left">
+              <p className="text-white/60 text-xs font-semibold uppercase tracking-wide mb-0.5">
+                Coba juga
+              </p>
+              <p className="font-display text-white font-bold text-base leading-tight">
+                Sensus Warganet 2026
+              </p>
+              <p className="text-white/75 text-xs mt-0.5">
+                Udah tau tipe bucin lo? Sekarang cek tipe warganet lo →
+              </p>
+            </div>
+          </a>
+        )}
       </div>
     </main>
   );
