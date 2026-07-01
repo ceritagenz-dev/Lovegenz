@@ -285,7 +285,7 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         href="https://ceritagenz.vercel.app/"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full flex items-center gap-4 bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl px-5 py-4 active:scale-95 transition-transform"
+        className="w-full flex items-center gap-4 bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl px-5 py-4 active:scale-95 transition-transform"
       >
         <span className="text-3xl flex-shrink-0">🗳️</span>
         <div className="text-left">
@@ -296,7 +296,7 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
             Sensus Warganet 2026
           </p>
           <p className="text-white/75 text-xs mt-0.5">
-            Lo tipe warganet apa? →
+            Lu golongan apa? →
           </p>
         </div>
       </a>
