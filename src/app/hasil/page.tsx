@@ -85,7 +85,7 @@ export default function HasilPage() {
             href="https://ceritagenz.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center gap-4 bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl px-5 py-4 active:scale-95 transition-transform mt-2"
+            className="w-full flex items-center gap-4 bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl px-5 py-4 active:scale-95 transition-transform mt-2"
           >
             <span className="text-3xl flex-shrink-0">🗳️</span>
             <div className="text-left">
@@ -96,7 +96,7 @@ export default function HasilPage() {
                 Sensus Warganet 2026
               </p>
               <p className="text-white/75 text-xs mt-0.5">
-                Udah tau tipe bucin lo? Sekarang cek tipe warganet lo →
+                Lu golongan apa? →
               </p>
             </div>
           </a>
