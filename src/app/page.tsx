@@ -279,22 +279,68 @@ function NamaScreen({
   setNama: (v: string) => void;
   onSubmit: () => void;
 }) {
+  const [warning, setWarning] = useState("");
+  const MAX = 20;
+
+  const handleChange = (val: string) => {
+    // Filter: huruf saja (termasuk huruf beraksent & spasi)
+    const filtered = val.replace(/[^a-zA-ZÀ-ÿ\s]/g, "");
+    if (val !== filtered) {
+      setWarning("Nama hanya bisa berisi huruf ya 😅");
+      setTimeout(() => setWarning(""), 2000);
+    }
+    setNama(filtered.slice(0, MAX));
+  };
+
+  const tooLong = nama.trim().length > 18;
+
   return (
     <div className="flex flex-col items-center text-center max-w-sm w-full gap-5">
       <span className="text-5xl animate-wiggle">👋</span>
       <h2 className="font-display text-2xl sm:text-3xl font-bold text-white text-shadow-soft">
         Siapa nama lo?
       </h2>
-      <input
-        autoFocus
-        type="text"
-        value={nama}
-        onChange={(e) => setNama(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && onSubmit()}
-        maxLength={50}
-        placeholder="Nama samaran lo..."
-        className="w-full bg-white rounded-2xl px-5 py-4 text-bucin-deepred font-medium text-center text-lg placeholder:text-gray-400 outline-none focus:ring-4 focus:ring-white/80 transition-shadow"
-      />
+      <div className="w-full relative">
+        <input
+          autoFocus
+          type="text"
+          value={nama}
+          onChange={(e) => handleChange(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && onSubmit()}
+          maxLength={MAX}
+          placeholder="Nama samaran lo..."
+          className={`w-full bg-white rounded-2xl px-5 py-4 text-bucin-deepred font-medium text-center text-lg placeholder:text-gray-400 outline-none transition-shadow ${
+            tooLong
+              ? "focus:ring-4 focus:ring-yellow-400/60 ring-2 ring-yellow-400"
+              : "focus:ring-4 focus:ring-white/80"
+          }`}
+        />
+        {/* Counter */}
+        <span
+          className={`absolute bottom-2.5 right-4 text-xs font-semibold ${
+            nama.length >= MAX
+              ? "text-red-400"
+              : nama.length >= 16
+              ? "text-yellow-500"
+              : "text-gray-400"
+          }`}
+        >
+          {nama.length}/{MAX}
+        </span>
+      </div>
+
+      {/* Warning */}
+      {warning && (
+        <p className="text-yellow-300 text-sm font-medium -mt-2 animate-fade-in-up">
+          {warning}
+        </p>
+      )}
+      {tooLong && !warning && (
+        <p className="text-yellow-300 text-sm font-medium -mt-2">
+          Nama kepanjangan, coba lebih singkat 😄
+        </p>
+      )}
+
       <button
         onClick={onSubmit}
         disabled={nama.trim().length === 0}
