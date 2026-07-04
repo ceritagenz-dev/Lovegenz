@@ -295,6 +295,7 @@ function NamaScreen({
   };
 
   const tooLong = nama.trim().length > 18;
+  const tooShort = nama.trim().length > 0 && nama.trim().length < 3;
 
   return (
     <div className="flex flex-col items-center text-center max-w-sm w-full gap-5">
@@ -314,6 +315,8 @@ function NamaScreen({
           className={`w-full bg-white rounded-2xl px-5 py-4 text-bucin-deepred font-medium text-center text-lg placeholder:text-gray-400 outline-none transition-shadow ${
             tooLong
               ? "focus:ring-4 focus:ring-yellow-400/60 ring-2 ring-yellow-400"
+              : tooShort
+              ? "focus:ring-4 focus:ring-red-400/60 ring-2 ring-red-400"
               : "focus:ring-4 focus:ring-white/80"
           }`}
         />
@@ -337,7 +340,12 @@ function NamaScreen({
           {warning}
         </p>
       )}
-      {tooLong && !warning && (
+      {tooShort && !warning && (
+        <p className="text-red-300 text-sm font-medium -mt-2">
+          Nama minimal 3 huruf ya 😅
+        </p>
+      )}
+      {tooLong && !warning && !tooShort && (
         <p className="text-yellow-300 text-sm font-medium -mt-2">
           Nama kepanjangan, coba lebih singkat 😄
         </p>
@@ -345,7 +353,7 @@ function NamaScreen({
 
       <button
         onClick={onSubmit}
-        disabled={nama.trim().length === 0}
+        disabled={nama.trim().length < 3}
         className="font-display w-full bg-bucin-gold text-bucin-deepred font-bold text-lg px-10 py-4 rounded-full shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:active:scale-100"
       >
         Mulai Kuis →
