@@ -12,7 +12,7 @@ const TWEET_CAPTION = (golonganNama: string, percentage: number) =>
   `Golongan gue udah keluar 😭🚩\n\n"${golonganNama}" — ${percentage}% tingkat kebucinan\n\nGolongan lo apa? Coba tes kalau berani, ini 40 soal yang bikin mikir ulang soal hubungan.`;
 
 const WA_CAPTION = (nama: string, golonganNama: string, percentage: number, url: string) =>
-  `Hasil SENSUS BUCIN 2026 gue keluar 😭🚩\n\nNama: ${nama}\nGolongan: "${golonganNama}"\nTingkat kebucinan: ${percentage}%\n\nLo berani tes juga? 40 pertanyaan, gak ada ampun.\n👉 ${url}`;
+  `Hasil KUIS BUCIN 2026 gue keluar 😭🚩\n\nNama: ${nama}\nGolongan: "${golonganNama}"\nTingkat kebucinan: ${percentage}%\n\nLo berani tes juga? 40 pertanyaan, gak ada ampun.\n👉 ${url}`;
 
 // Helper: wrap text di canvas
 function drawWrappedText(
@@ -89,47 +89,64 @@ async function generateShareImage(
 
   // App label
   ctx.fillStyle = "rgba(194,24,91,0.45)";
-  ctx.font = "500 34px Poppins, sans-serif";
-  ctx.fillText("SENSUS BUCIN 2026", CX, CM + 65);
+  ctx.font = "500 32px Poppins, sans-serif";
+  ctx.fillText("KUIS BUCIN 2026", CX, CM + 60);
 
   // Heart
-  ctx.font = "90px sans-serif";
-  ctx.fillText("💓", CX, CM + 175);
+  ctx.font = "80px sans-serif";
+  ctx.fillText("💓", CX, CM + 155);
 
   // Nama
   ctx.fillStyle = "#C2185B";
   const namaDisplay = nama.length > 18 ? nama.slice(0, 16) + "…" : nama;
-  ctx.font = "bold 68px Poppins, sans-serif";
-  ctx.fillText(namaDisplay, CX, CM + 275);
+  ctx.font = "bold 60px Poppins, sans-serif";
+  ctx.fillText(namaDisplay, CX, CM + 245);
 
   // Divider
   ctx.strokeStyle = "rgba(194,24,91,0.15)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(CM + 80, CM + 300); ctx.lineTo(CM + CW - 80, CM + 300);
+  ctx.moveTo(CM + 80, CM + 272); ctx.lineTo(CM + CW - 80, CM + 272);
   ctx.stroke();
 
-  // Golongan — wrapped text, font ukuran turun kalau panjang
+  // Golongan — zona FIXED 300-430, max 2 baris, font auto-shrink
   ctx.fillStyle = "#FF3D7F";
-  const golFontSize = golonganNama.length > 20 ? 44 : golonganNama.length > 14 ? 50 : 56;
+  const golFontSize = golonganNama.length > 22 ? 38 : golonganNama.length > 16 ? 44 : 50;
   ctx.font = `bold ${golFontSize}px Poppins, sans-serif`;
-  const golLines = drawWrappedText(ctx, golonganNama, CX, CM + 365, CW - 120, golFontSize * 1.3);
+  const maxGolW = CW - 100;
+  const words = golonganNama.split(" ");
+  let line1 = "", line2 = "";
+  for (let i = 0; i < words.length; i++) {
+    const test = line1 + (line1 ? " " : "") + words[i];
+    if (ctx.measureText(test).width > maxGolW && line1) {
+      let rest = words.slice(i).join(" ");
+      while (ctx.measureText(rest).width > maxGolW && rest.length > 2) {
+        rest = rest.slice(0, -2) + "…";
+      }
+      line2 = rest;
+      break;
+    }
+    line1 = test;
+  }
+  const golY = CM + 340;
+  const lineH = golFontSize * 1.3;
+  ctx.fillText(line1, CX, golY);
+  if (line2) ctx.fillText(line2, CX, golY + lineH);
 
-  // Percentage
-  const pctY = CM + 370 + golLines * golFontSize * 1.3 + 30;
+  // Percentage — posisi FIXED y=610, tidak pernah bergerak
   ctx.fillStyle = "#C2185B";
-  ctx.font = "bold 170px Poppins, sans-serif";
-  ctx.fillText(`${percentage}%`, CX, pctY);
+  ctx.font = "bold 148px Poppins, sans-serif";
+  ctx.fillText(`${percentage}%`, CX, CM + 610);
 
   // Label
   ctx.fillStyle = "rgba(194,24,91,0.5)";
-  ctx.font = "500 36px Poppins, sans-serif";
-  ctx.fillText("tingkat kebucinan", CX, pctY + 46);
+  ctx.font = "500 33px Poppins, sans-serif";
+  ctx.fillText("tingkat kebucinan", CX, CM + 662);
 
   // URL
   ctx.fillStyle = "rgba(194,24,91,0.38)";
-  ctx.font = "30px Poppins, sans-serif";
-  ctx.fillText(url, CX, CM + CH - 32);
+  ctx.font = "28px Poppins, sans-serif";
+  ctx.fillText(url, CX, CM + CH - 35);
 
   return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
 }
@@ -160,7 +177,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
     ) {
       try {
         await navigator.share({
-          title: "Sensus Bucin 2026",
+          title: "Kuis Bucin 2026",
           text: caption,
           files: [new File([blob], "hasil-sensus.png", { type: "image/png" })],
         });
@@ -168,7 +185,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
       } catch {}
     }
     if (navigator.share) {
-      try { await navigator.share({ title: "Sensus Bucin 2026", text: caption, url: shareUrl }); return; } catch {}
+      try { await navigator.share({ title: "Kuis Bucin 2026", text: caption, url: shareUrl }); return; } catch {}
     }
     await handleCopy();
   };
@@ -243,13 +260,14 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         </a>
       </div>
 
-      {/* Download gambar */}
+      {/* Download gambar — tombol utama yang paling menonjol */}
       <button
         onClick={handleDownloadImage}
         disabled={generating}
-        className="w-full mt-2.5 bg-white/20 text-white text-sm font-semibold py-2.5 rounded-xl active:scale-95 transition-transform disabled:opacity-70"
+        className="w-full mt-3 flex items-center justify-center gap-2 bg-bucin-gold text-bucin-deepred text-sm font-bold py-3.5 rounded-2xl active:scale-95 transition-transform disabled:opacity-70 shadow-md"
       >
-        {generating ? "Generating..." : "⬇️  Simpan gambar hasil"}
+        <span className="text-base">{generating ? "⏳" : "⬇️"}</span>
+        {generating ? "Generating gambar..." : "Simpan gambar hasil"}
       </button>
 
       <button
