@@ -17,18 +17,18 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Sensus Bucin 2026 — Tes Seberapa Bucin Lo",
+  title: "Kuis Bucin 2026 — Tes Seberapa Bucin Lo",
   description:
-    "40 pertanyaan, 20 golongan. Cari tau lo masuk kategori bucin apa di Sensus Bucin 2026.",
+    "40 pertanyaan, 20 golongan. Cari tau lo masuk kategori bucin apa di Kuis Bucin 2026.",
   openGraph: {
-    title: "Sensus Bucin 2026",
+    title: "Kuis Bucin 2026",
     description:
       "40 pertanyaan jujur-jujuran. Ketauan lo masuk golongan bucin yang mana.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sensus Bucin 2026",
+    title: "Kuis Bucin 2026",
     description:
       "40 pertanyaan jujur-jujuran. Ketauan lo masuk golongan bucin yang mana.",
   },
