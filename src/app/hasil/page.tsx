@@ -36,27 +36,36 @@ const GOLONGAN_EMOJI: Record<string, string> = {
   "Bucin Akut Tingkat Dewa": "👑",
 };
 
+const TOP3 = [
+  { border: "border-yellow-400", bg: "bg-yellow-50", badge: "🥇", label: "text-yellow-600" },
+  { border: "border-gray-300",   bg: "bg-gray-50",   badge: "🥈", label: "text-gray-500"   },
+  { border: "border-orange-300", bg: "bg-orange-50", badge: "🥉", label: "text-orange-500" },
+];
+
+function timeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffMins < 1)   return "Baru saja";
+  if (diffMins < 60)  return `${diffMins} menit lalu`;
+  if (diffHours < 24) return `${diffHours} jam lalu`;
+  if (diffDays < 7)   return `${diffDays} hari lalu`;
+  return date.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+}
+
 function CircleProgress({ pct }: { pct: number }) {
   const size = 44;
   const r = (size - 5) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      style={{ transform: "rotate(-90deg)" }}
-    >
-      <circle
-        cx={size / 2} cy={size / 2} r={r}
-        fill="none" stroke="rgba(194,24,91,0.12)" strokeWidth={4}
-      />
-      <circle
-        cx={size / 2} cy={size / 2} r={r}
-        fill="none" stroke="#FF3D7F" strokeWidth={4}
-        strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
-      />
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(194,24,91,0.12)" strokeWidth={4} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#FF3D7F" strokeWidth={4}
+        strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
     </svg>
   );
 }
@@ -64,21 +73,31 @@ function CircleProgress({ pct }: { pct: number }) {
 type FilterType = "terbaru" | "terbucin";
 
 export default function HasilPage() {
-  const [results, setResults] = useState<ResultItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterType>("terbaru");
+  const [results, setResults]       = useState<ResultItem[]>([]);
+  const [total, setTotal]           = useState(0);
+  const [loading, setLoading]       = useState(true);
+  const [filter, setFilter]         = useState<FilterType>("terbaru");
+  const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const res = await fetch(`/api/results?page=0`, { cache: "no-store" });
+      const res  = await fetch(`/api/results?page=0`, { cache: "no-store" });
       const data = await res.json();
       setResults(data.results || []);
-      setTotal(data.total || 0);
+      setTotal(data.total   || 0);
       setLoading(false);
     })();
   }, []);
+
+  const handleFilterChange = (f: FilterType) => {
+    if (f === filter) return;
+    setTransitioning(true);
+    setTimeout(() => {
+      setFilter(f);
+      setTransitioning(false);
+    }, 180);
+  };
 
   const sorted =
     filter === "terbucin"
@@ -88,33 +107,24 @@ export default function HasilPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-bucin-red via-bucin-purple to-bucin-deepred bg-300% animate-gradientshift px-4 py-8">
       <div className="max-w-2xl mx-auto flex flex-col gap-5">
+
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-white/85 text-sm font-medium underline-offset-2 hover:underline"
-          >
+          <Link href="/" className="text-white/85 text-sm font-medium underline-offset-2 hover:underline">
             ← Kembali
           </Link>
           <div className="flex items-center gap-2">
-            {/* Live indicator */}
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
             </span>
-            <span className="text-white/85 text-sm font-medium">
-              {total} responden
-            </span>
+            <span className="text-white/85 text-sm font-medium">{total} responden</span>
           </div>
         </div>
 
         <div className="text-center mb-1">
-          <h1 className="font-display text-3xl font-bold text-white text-shadow-soft">
-            Kuis Bucin 2026
-          </h1>
-          <p className="text-white/80 text-sm mt-1">
-            10 hasil terbaru, yang paling baru ngisi muncul di atas
-          </p>
+          <h1 className="font-display text-3xl font-bold text-white text-shadow-soft">Kuis Bucin 2026</h1>
+          <p className="text-white/80 text-sm mt-1">10 hasil terbaru, yang paling baru ngisi muncul di atas</p>
         </div>
 
         {/* Filter toggle */}
@@ -122,11 +132,9 @@ export default function HasilPage() {
           {(["terbaru", "terbucin"] as FilterType[]).map((f) => (
             <button
               key={f}
-              onClick={() => setFilter(f)}
+              onClick={() => handleFilterChange(f)}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                filter === f
-                  ? "bg-white text-bucin-deepred shadow"
-                  : "text-white/80 hover:text-white"
+                filter === f ? "bg-white text-bucin-deepred shadow" : "text-white/80 hover:text-white"
               }`}
             >
               {f === "terbaru" ? "🕐 Terbaru" : "👑 Top Bucin"}
@@ -145,22 +153,17 @@ export default function HasilPage() {
         {/* Empty */}
         {!loading && results.length === 0 && (
           <div className="bg-white/15 backdrop-blur-sm rounded-3xl p-8 text-center">
-            <p className="text-white text-base font-medium">
-              Belum ada yang ngisi kuis nih.
-            </p>
-            <Link
-              href="/"
-              className="inline-block mt-4 font-display bg-bucin-gold text-bucin-deepred font-bold px-6 py-3 rounded-full"
-            >
+            <p className="text-white text-base font-medium">Belum ada yang ngisi kuis nih.</p>
+            <Link href="/" className="inline-block mt-4 font-display bg-bucin-gold text-bucin-deepred font-bold px-6 py-3 rounded-full">
               Jadi yang pertama →
             </Link>
           </div>
         )}
 
-        {/* Result cards */}
-        <div className="flex flex-col gap-3">
+        {/* Result cards — with fade transition */}
+        <div className={`flex flex-col gap-3 transition-opacity duration-200 ${transitioning ? "opacity-0" : "opacity-100"}`}>
           {sorted.map((item, i) => (
-            <ResultCard key={item.id} item={item} index={i} />
+            <ResultCard key={item.id} item={item} index={i} isTopBucin={filter === "terbucin"} />
           ))}
         </div>
 
@@ -170,9 +173,9 @@ export default function HasilPage() {
             href="https://ceritagenz.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2.5 bg-bucin-gold text-bucin-deepred font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform animate-breathe mt-2"
+            className="w-full flex items-center justify-center gap-2.5 bg-bucin-gold text-bucin-deepred font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform mt-2"
           >
-            <span className="text-xl">🗳️</span>
+            <span className="animate-heartbeat text-xl">💗</span>
             Lo warganet golongan apa? Cek sekarang →
           </a>
         )}
@@ -181,34 +184,55 @@ export default function HasilPage() {
   );
 }
 
-function ResultCard({ item, index }: { item: ResultItem; index: number }) {
-  const emoji = GOLONGAN_EMOJI[item.golongan_nama] ?? "💘";
+function ResultCard({
+  item,
+  index,
+  isTopBucin,
+}: {
+  item: ResultItem;
+  index: number;
+  isTopBucin: boolean;
+}) {
+  const emoji    = GOLONGAN_EMOJI[item.golongan_nama] ?? "💘";
+  const topStyle = isTopBucin && index < 3 ? TOP3[index] : null;
+
   return (
     <div
-      className="bg-white rounded-2xl card-shadow p-4 sm:p-5 animate-fade-in-up"
+      className={`rounded-2xl card-shadow p-4 sm:p-5 border-2 animate-fade-in-up ${
+        topStyle
+          ? `${topStyle.bg} ${topStyle.border}`
+          : "bg-white border-transparent"
+      }`}
       style={{ animationDelay: `${index * 60}ms`, opacity: 0 }}
     >
       <div className="flex items-center gap-3 mb-2">
         {/* Circle progress */}
         <div className="relative flex-shrink-0">
           <CircleProgress pct={item.percentage} />
-          <span
-            className="absolute inset-0 flex items-center justify-center font-display font-bold text-[11px] text-bucin-deepred"
-          >
+          <span className="absolute inset-0 flex items-center justify-center font-display font-bold text-[11px] text-bucin-deepred">
             {item.percentage}%
           </span>
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-display font-bold text-bucin-deepred text-base leading-tight truncate">
-            {item.nama}
-          </p>
+          <div className="flex items-center gap-1.5">
+            {topStyle && <span className="text-base">{topStyle.badge}</span>}
+            <p className="font-display font-bold text-bucin-deepred text-base leading-tight truncate">
+              {item.nama}
+            </p>
+          </div>
           <p className="text-bucin-pink font-display font-semibold text-sm flex items-center gap-1">
             <span>{emoji}</span>
             <span className="truncate">{item.golongan_nama}</span>
           </p>
         </div>
+
+        {/* Timestamp */}
+        <span className="text-[11px] text-gray-400 font-medium flex-shrink-0">
+          {timeAgo(item.created_at)}
+        </span>
       </div>
+
       <p className="text-gray-600 text-sm leading-relaxed">{item.deskripsi}</p>
     </div>
   );
