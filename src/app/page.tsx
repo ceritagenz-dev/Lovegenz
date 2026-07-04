@@ -208,6 +208,8 @@ function LandingScreen({
         style={{ animationDelay: "160ms", opacity: 0 }}
       >
         40 pertanyaan jujur-jujuran. No filter, no boong-boongan.
+        <br />
+        <span className="text-white/70 text-sm">⏱ Kurang dari 3 menit</span>
       </p>
 
       {/* Tipe bucin preview — ikon beranimasi stagger */}
@@ -245,7 +247,7 @@ function LandingScreen({
         className="font-display bg-bucin-gold text-bucin-deepred font-bold text-lg px-10 py-4 rounded-full shadow-lg active:scale-95 transition-transform mt-1 animate-breathe animate-fade-in-up"
         style={{ animationDelay: "380ms", opacity: 0 }}
       >
-        Mulai Sensus →
+        Mulai Kuis →
       </button>
 
       {/* Social proof */}
@@ -259,8 +261,8 @@ function LandingScreen({
       {/* Intip hasil — pill dengan border */}
       <Link
         href="/hasil"
-        className="text-white/85 text-sm font-semibold border border-white/40 rounded-full px-5 py-2 hover:bg-white/10 transition-colors animate-fade-in-up"
-        style={{ animationDelay: "480ms", opacity: 0 }}
+        className="text-white/85 text-sm font-semibold border border-white/40 rounded-full px-5 py-2 hover:bg-white/10 transition-colors animate-fade-in-up animate-heartbeat"
+        style={{ animationDelay: "480ms", opacity: 0, display: "inline-block" }}
       >
         Intip hasil orang lain dulu →
       </Link>
@@ -346,7 +348,7 @@ function NamaScreen({
         disabled={nama.trim().length === 0}
         className="font-display w-full bg-bucin-gold text-bucin-deepred font-bold text-lg px-10 py-4 rounded-full shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:active:scale-100"
       >
-        Mulai Sensus →
+        Mulai Kuis →
       </button>
     </div>
   );
