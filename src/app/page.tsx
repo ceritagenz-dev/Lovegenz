@@ -198,7 +198,7 @@ function LandingScreen({
         className="font-display text-4xl sm:text-5xl font-bold text-white text-shadow-soft leading-tight animate-fade-in-up"
         style={{ animationDelay: "80ms", opacity: 0 }}
       >
-        Sensus Bucin
+        Kuis Bucin
         <br />
         2026
       </h1>
@@ -407,7 +407,7 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
       )}
 
       <span className="text-5xl">🏆</span>
-      <p className="text-white/85 text-sm font-medium">Hasil Sensus Bucin untuk</p>
+      <p className="text-white/85 text-sm font-medium">Hasil Kuis Bucin untuk</p>
       <h2 className="font-display text-2xl font-bold text-white text-shadow-soft -mt-2">
         {hasil.nama}
       </h2>
@@ -429,6 +429,15 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
             ))}
           </div>
         </div>
+        <p className="text-[11px] text-bucin-deepred/50 font-medium mb-2 text-left">
+          {hasil.golongan.rank <= 5
+            ? "Lo termasuk yang paling 'waras' di kuis ini 😎"
+            : hasil.golongan.rank <= 10
+            ? "Bucin level sedang — masih bisa dikontrol 😅"
+            : hasil.golongan.rank <= 15
+            ? "Lumayan juga nih, tapi masih ada yang lebih parah! 😬"
+            : "Lo bagian dari 20% paling bucin di seluruh kuis ini 🏆"}
+        </p>
         <h3 className="font-display text-2xl sm:text-3xl font-bold text-bucin-pink mb-3 leading-snug">
           {hasil.golongan.nama}
         </h3>
