@@ -33,13 +33,12 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
               key={opt.label}
               onClick={() => !locked && onSelect(opt.label)}
               disabled={locked}
-              className={`group flex items-start gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 active:scale-[0.98] disabled:active:scale-100 ${
+              className={`group flex items-start gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 disabled:active:scale-100 ${
                 isSelected
-                  ? "border-bucin-pink bg-bucin-cream shadow-md"
-                  : "border-gray-100 bg-white hover:border-bucin-pink/40 hover:bg-bucin-cream/50"
+                  ? "border-bucin-pink bg-bucin-cream shadow-md animate-bounce-select"
+                  : "border-gray-100 bg-white hover:border-bucin-pink/40 hover:bg-bucin-cream/50 active:scale-[0.98]"
               }`}
             >
-              {/* Emoji + label badge */}
               <span
                 className={`font-display flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-base font-bold transition-all ${
                   isSelected
@@ -49,12 +48,9 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
               >
                 {isSelected ? "✓" : emoji}
               </span>
-
               <span
                 className={`text-[15px] leading-snug pt-1 flex-1 ${
-                  isSelected
-                    ? "text-bucin-deepred font-semibold"
-                    : "text-gray-700"
+                  isSelected ? "text-bucin-deepred font-semibold" : "text-gray-700"
                 }`}
               >
                 {opt.text}
