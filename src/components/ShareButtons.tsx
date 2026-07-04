@@ -12,7 +12,33 @@ const TWEET_CAPTION = (golonganNama: string, percentage: number) =>
   `Golongan gue udah keluar 😭🚩\n\n"${golonganNama}" — ${percentage}% tingkat kebucinan\n\nGolongan lo apa? Coba tes kalau berani, ini 40 soal yang bikin mikir ulang soal hubungan.`;
 
 const WA_CAPTION = (nama: string, golonganNama: string, percentage: number, url: string) =>
-  `Hasil SENSUS BUCIN 2026 gua keluar 😭🚩\n\nNama: ${nama}\nGolongan: "${golonganNama}"\nTingkat kebucinan: ${percentage}%\n\nLo berani tes seberapa bucin lo juga? 40 pertanyaan, gak ada ampun.\n👉 ${url}`;
+  `Hasil SENSUS BUCIN 2026 gue keluar 😭🚩\n\nNama: ${nama}\nGolongan: "${golonganNama}"\nTingkat kebucinan: ${percentage}%\n\nLo berani tes juga? 40 pertanyaan, gak ada ampun.\n👉 ${url}`;
+
+// Helper: wrap text di canvas
+function drawWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(" ");
+  let line = "";
+  let lineCount = 0;
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + " ";
+    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, y + lineCount * lineHeight);
+      line = words[n] + " ";
+      lineCount++;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, y + lineCount * lineHeight);
+  return lineCount + 1;
+}
 
 async function generateShareImage(
   nama: string,
@@ -20,9 +46,7 @@ async function generateShareImage(
   percentage: number,
   url: string
 ): Promise<Blob | null> {
-  try {
-    await document.fonts.load("bold 72px Poppins");
-  } catch {}
+  try { await document.fonts.load("bold 72px Poppins"); } catch {}
 
   const canvas = document.createElement("canvas");
   const S = 1080;
@@ -31,7 +55,7 @@ async function generateShareImage(
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
-  // Background gradient
+  // Gradient bg
   const grad = ctx.createLinearGradient(0, 0, S, S);
   grad.addColorStop(0, "#E0115F");
   grad.addColorStop(0.5, "#A91079");
@@ -39,81 +63,73 @@ async function generateShareImage(
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, S, S);
 
-  // Subtle circle deco
-  ctx.fillStyle = "rgba(255,255,255,0.05)";
-  ctx.beginPath();
-  ctx.arc(S * 0.85, S * 0.12, 240, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(S * 0.1, S * 0.88, 180, 0, Math.PI * 2);
-  ctx.fill();
+  // Deco circles
+  ctx.fillStyle = "rgba(255,255,255,0.06)";
+  ctx.beginPath(); ctx.arc(S * 0.85, S * 0.12, 240, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(S * 0.1, S * 0.88, 180, 0, Math.PI * 2); ctx.fill();
 
   // White card
-  const CM = 70;
-  const CW = S - CM * 2;
-  const CH = S - CM * 2;
+  const CM = 70, CW = S - CM * 2, CH = S - CM * 2, RD = 48;
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
-  const r = 48;
-  ctx.moveTo(CM + r, CM);
-  ctx.lineTo(CM + CW - r, CM);
-  ctx.quadraticCurveTo(CM + CW, CM, CM + CW, CM + r);
-  ctx.lineTo(CM + CW, CM + CH - r);
-  ctx.quadraticCurveTo(CM + CW, CM + CH, CM + CW - r, CM + CH);
-  ctx.lineTo(CM + r, CM + CH);
-  ctx.quadraticCurveTo(CM, CM + CH, CM, CM + CH - r);
-  ctx.lineTo(CM, CM + r);
-  ctx.quadraticCurveTo(CM, CM, CM + r, CM);
+  ctx.moveTo(CM + RD, CM);
+  ctx.lineTo(CM + CW - RD, CM);
+  ctx.quadraticCurveTo(CM + CW, CM, CM + CW, CM + RD);
+  ctx.lineTo(CM + CW, CM + CH - RD);
+  ctx.quadraticCurveTo(CM + CW, CM + CH, CM + CW - RD, CM + CH);
+  ctx.lineTo(CM + RD, CM + CH);
+  ctx.quadraticCurveTo(CM, CM + CH, CM, CM + CH - RD);
+  ctx.lineTo(CM, CM + RD);
+  ctx.quadraticCurveTo(CM, CM, CM + RD, CM);
   ctx.closePath();
   ctx.fill();
 
   const CX = S / 2;
+  ctx.textAlign = "center";
 
   // App label
-  ctx.fillStyle = "rgba(194,24,91,0.5)";
-  ctx.font = "500 36px Poppins, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("SENSUS BUCIN 2026", CX, CM + 70);
+  ctx.fillStyle = "rgba(194,24,91,0.45)";
+  ctx.font = "500 34px Poppins, sans-serif";
+  ctx.fillText("SENSUS BUCIN 2026", CX, CM + 65);
 
   // Heart
-  ctx.font = "100px sans-serif";
-  ctx.fillText("💓", CX, CM + 195);
+  ctx.font = "90px sans-serif";
+  ctx.fillText("💓", CX, CM + 175);
 
   // Nama
   ctx.fillStyle = "#C2185B";
-  ctx.font = "bold 70px Poppins, sans-serif";
-  const namaDisplay = nama.length > 16 ? nama.slice(0, 14) + "…" : nama;
-  ctx.fillText(namaDisplay, CX, CM + 300);
+  const namaDisplay = nama.length > 18 ? nama.slice(0, 16) + "…" : nama;
+  ctx.font = "bold 68px Poppins, sans-serif";
+  ctx.fillText(namaDisplay, CX, CM + 275);
 
   // Divider
   ctx.strokeStyle = "rgba(194,24,91,0.15)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(CM + 80, CM + 330);
-  ctx.lineTo(CM + CW - 80, CM + 330);
+  ctx.moveTo(CM + 80, CM + 300); ctx.lineTo(CM + CW - 80, CM + 300);
   ctx.stroke();
 
-  // Golongan
+  // Golongan — wrapped text, font ukuran turun kalau panjang
   ctx.fillStyle = "#FF3D7F";
-  ctx.font = "bold 52px Poppins, sans-serif";
-  const golDisplay =
-    golonganNama.length > 22 ? golonganNama.slice(0, 20) + "…" : golonganNama;
-  ctx.fillText(golDisplay, CX, CM + 400);
+  const golFontSize = golonganNama.length > 20 ? 44 : golonganNama.length > 14 ? 50 : 56;
+  ctx.font = `bold ${golFontSize}px Poppins, sans-serif`;
+  const golLines = drawWrappedText(ctx, golonganNama, CX, CM + 365, CW - 120, golFontSize * 1.3);
 
-  // Percentage big
+  // Percentage
+  const pctY = CM + 370 + golLines * golFontSize * 1.3 + 30;
   ctx.fillStyle = "#C2185B";
-  ctx.font = "bold 180px Poppins, sans-serif";
-  ctx.fillText(`${percentage}%`, CX, CM + 610);
+  ctx.font = "bold 170px Poppins, sans-serif";
+  ctx.fillText(`${percentage}%`, CX, pctY);
 
   // Label
-  ctx.fillStyle = "rgba(194,24,91,0.55)";
-  ctx.font = "500 38px Poppins, sans-serif";
-  ctx.fillText("tingkat kebucinan", CX, CM + 670);
+  ctx.fillStyle = "rgba(194,24,91,0.5)";
+  ctx.font = "500 36px Poppins, sans-serif";
+  ctx.fillText("tingkat kebucinan", CX, pctY + 46);
 
   // URL
-  ctx.fillStyle = "rgba(194,24,91,0.4)";
-  ctx.font = "32px Poppins, sans-serif";
-  ctx.fillText(url, CX, CM + CH - 35);
+  ctx.fillStyle = "rgba(194,24,91,0.38)";
+  ctx.font = "30px Poppins, sans-serif";
+  ctx.fillText(url, CX, CM + CH - 32);
 
   return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
 }
@@ -121,18 +137,27 @@ async function generateShareImage(
 export default function ShareButtons({ nama, golonganNama, percentage }: Props) {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [toast, setToast] = useState("");
 
   const shareUrl =
     typeof window !== "undefined" ? window.location.origin : "https://lovegenz.vercel.app";
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3500);
+  };
 
   const handleNativeShare = async () => {
     setGenerating(true);
     const blob = await generateShareImage(nama, golonganNama, percentage, shareUrl);
     setGenerating(false);
-
     const caption = WA_CAPTION(nama, golonganNama, percentage, shareUrl);
 
-    if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], "hasil-sensus.png", { type: "image/png" })] })) {
+    if (
+      blob &&
+      navigator.canShare &&
+      navigator.canShare({ files: [new File([blob], "hasil-sensus.png", { type: "image/png" })] })
+    ) {
       try {
         await navigator.share({
           title: "Sensus Bucin 2026",
@@ -142,12 +167,8 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         return;
       } catch {}
     }
-    // Fallback: share without image
     if (navigator.share) {
-      try {
-        await navigator.share({ title: "Sensus Bucin 2026", text: caption, url: shareUrl });
-        return;
-      } catch {}
+      try { await navigator.share({ title: "Sensus Bucin 2026", text: caption, url: shareUrl }); return; } catch {}
     }
     await handleCopy();
   };
@@ -163,34 +184,33 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
     a.download = `sensus-bucin-${nama}.png`;
     a.click();
     URL.revokeObjectURL(url);
+    showToast("Hasil udah masuk galeri! Jangan lupa pamerin di Story ya! 😉");
   };
 
   const handleCopy = async () => {
     const caption = WA_CAPTION(nama, golonganNama, percentage, shareUrl);
-    try {
-      await navigator.clipboard.writeText(`${caption}`);
-    } catch {}
+    try { await navigator.clipboard.writeText(caption); } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const waLink = `https://wa.me/?text=${encodeURIComponent(
-    WA_CAPTION(nama, golonganNama, percentage, shareUrl)
-  )}`;
-
-  const tweetText = TWEET_CAPTION(golonganNama, percentage);
-  const twitterLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-    tweetText
-  )}&url=${encodeURIComponent(shareUrl)}`;
+  const waLink = `https://wa.me/?text=${encodeURIComponent(WA_CAPTION(nama, golonganNama, percentage, shareUrl))}`;
+  const twitterLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(TWEET_CAPTION(golonganNama, percentage))}&url=${encodeURIComponent(shareUrl)}`;
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {/* Toast notification */}
+      {toast && (
+        <div className="absolute -top-14 left-0 right-0 mx-auto bg-white text-bucin-deepred text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg text-center transition-all z-10">
+          {toast}
+        </div>
+      )}
+
       <p className="font-display text-center text-white font-semibold mb-3 text-sm text-shadow-soft">
-        Bagikan hasil sensus lo
+        Kekuatan kebucinan lo udah resmi tercatat, sekarang waktunya pamer:
       </p>
 
       <div className="grid grid-cols-3 gap-2.5">
-        {/* Share with image */}
         <button
           onClick={handleNativeShare}
           disabled={generating}
@@ -200,7 +220,6 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
           <span className="text-xs font-semibold">Share</span>
         </button>
 
-        {/* WhatsApp */}
         <a
           href={waLink}
           target="_blank"
@@ -211,7 +230,6 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
           <span className="text-xs font-semibold">WhatsApp</span>
         </a>
 
-        {/* Post X */}
         <a
           href={twitterLink}
           target="_blank"
@@ -225,7 +243,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         </a>
       </div>
 
-      {/* Download image */}
+      {/* Download gambar */}
       <button
         onClick={handleDownloadImage}
         disabled={generating}
