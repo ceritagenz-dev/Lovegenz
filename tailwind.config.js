@@ -57,6 +57,20 @@ module.exports = {
           "0%": { transform: "translateY(-40px) rotate(0deg)", opacity: "1" },
           "100%": { transform: "translateY(110vh) rotate(720deg)", opacity: "0" },
         },
+        bounceSelect: {
+          "0%": { transform: "scale(1)" },
+          "35%": { transform: "scale(0.96)" },
+          "65%": { transform: "scale(1.04)" },
+          "100%": { transform: "scale(1)" },
+        },
+        breathe: {
+          "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(255,209,102,0.0)" },
+          "50%": { transform: "scale(1.03)", boxShadow: "0 0 24px 10px rgba(255,209,102,0.35)" },
+        },
+        iconPop: {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.2)" },
+        },
       },
       animation: {
         heartbeat: "heartbeat 1.4s ease-in-out infinite",
@@ -67,6 +81,9 @@ module.exports = {
         gradientshift: "gradientshift 8s ease infinite",
         "fade-in-up": "fadeInUp 0.55s ease-out forwards",
         confetti: "confettiFall linear forwards",
+        "bounce-select": "bounceSelect 0.32s ease-out",
+        breathe: "breathe 2.6s ease-in-out infinite",
+        "icon-pop": "iconPop 1.8s ease-in-out infinite",
       },
       backgroundSize: {
         "300%": "300% 300%",
