@@ -96,9 +96,16 @@ export default function HasilPage() {
           >
             ← Kembali
           </Link>
-          <span className="text-white/85 text-sm font-medium">
-            {total} responden
-          </span>
+          <div className="flex items-center gap-2">
+            {/* Live indicator */}
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+            </span>
+            <span className="text-white/85 text-sm font-medium">
+              {total} responden
+            </span>
+          </div>
         </div>
 
         <div className="text-center mb-1">
@@ -122,7 +129,7 @@ export default function HasilPage() {
                   : "text-white/80 hover:text-white"
               }`}
             >
-              {f === "terbaru" ? "🕐 Terbaru" : "🔥 Terbucin"}
+              {f === "terbaru" ? "🕐 Terbaru" : "👑 Top Bucin"}
             </button>
           ))}
         </div>
@@ -163,7 +170,7 @@ export default function HasilPage() {
             href="https://ceritagenz.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2.5 bg-[#6C63FF] text-white font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform animate-breathe mt-2"
+            className="w-full flex items-center justify-center gap-2.5 bg-bucin-gold text-bucin-deepred font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform animate-breathe mt-2"
           >
             <span className="text-xl">🗳️</span>
             Lo warganet golongan apa? Cek sekarang →
