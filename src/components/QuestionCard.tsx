@@ -20,10 +20,13 @@ const OPTION_EMOJI: Record<string, string> = {
 export default function QuestionCard({ question, selected, onSelect }: Props) {
   const locked = selected !== undefined;
   return (
-    <div className="bg-white rounded-3xl card-shadow p-5 sm:p-7 w-full">
-      <h2 className="font-display text-xl sm:text-2xl text-bucin-deepred font-semibold leading-snug mb-5">
-        {question.question}
-      </h2>
+    <div className="bg-white rounded-3xl card-shadow p-5 sm:p-7 w-full flex flex-col">
+      {/* Question text — min height biar proporsional, vertically centered */}
+      <div className="flex items-center min-h-[72px] mb-5">
+        <h2 className="font-display text-xl sm:text-2xl text-bucin-deepred font-semibold leading-snug w-full">
+          {question.question}
+        </h2>
+      </div>
       <div className="flex flex-col gap-2.5">
         {question.options.map((opt) => {
           const isSelected = selected === opt.label;
@@ -33,7 +36,7 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
               key={opt.label}
               onClick={() => !locked && onSelect(opt.label)}
               disabled={locked}
-              className={`group flex items-start gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 disabled:active:scale-100 ${
+              className={`group flex items-center gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 min-h-[56px] disabled:active:scale-100 ${
                 isSelected
                   ? "border-bucin-pink bg-bucin-cream shadow-md animate-bounce-select"
                   : "border-gray-100 bg-white hover:border-bucin-pink/40 hover:bg-bucin-cream/50 active:scale-[0.98]"
@@ -49,7 +52,7 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
                 {isSelected ? "✓" : emoji}
               </span>
               <span
-                className={`text-[15px] leading-snug pt-1 flex-1 ${
+                className={`text-[15px] leading-snug flex-1 ${
                   isSelected ? "text-bucin-deepred font-semibold" : "text-gray-700"
                 }`}
               >
