@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { QUIZ_QUESTIONS } from "@/lib/questions";
 import HeartbeatProgress from "@/components/HeartbeatProgress";
@@ -20,12 +20,15 @@ const LOADING_TEXTS = [
 ];
 
 const TIPE_PREVIEW = [
-  { emoji: "🧊", label: "Es Batu" },
-  { emoji: "😏", label: "Santuy" },
-  { emoji: "😅", label: "Kepo Jaim" },
-  { emoji: "💀", label: "Overthink" },
-  { emoji: "🚨", label: "Bucin Akut" },
+  { emoji: "🧊", label: "Es Batu", delay: "0s" },
+  { emoji: "😏", label: "Santuy", delay: "0.3s" },
+  { emoji: "😅", label: "Kepo Jaim", delay: "0.6s" },
+  { emoji: "💀", label: "Overthink", delay: "0.9s" },
+  { emoji: "🚨", label: "Bucin Akut", delay: "1.2s" },
 ];
+
+// Base offset biar angka keliatan lebih besar (menambah ke jumlah real)
+const BASE_COUNT = 1000;
 
 type Stage = "landing" | "nama" | "quiz" | "loading" | "hasil" | "error";
 
@@ -61,7 +64,7 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/results?page=0", { cache: "no-store" })
       .then((r) => r.json())
-      .then((d) => setTotalResponden(d.total ?? null))
+      .then((d) => setTotalResponden(d.total ?? 0))
       .catch(() => {});
   }, []);
 
@@ -78,7 +81,7 @@ export default function Home() {
       } else {
         submitQuiz(updated);
       }
-    }, 220);
+    }, 500);
   };
 
   const submitQuiz = async (finalAnswers: Record<number, string>) => {
@@ -182,19 +185,15 @@ function LandingScreen({
   onStart: () => void;
   totalResponden: number | null;
 }) {
-  const socialProof =
-    totalResponden !== null
-      ? `${totalResponden.toLocaleString("id-ID")}+ warganet udah terdata 🔥`
-      : "Ribuan warganet udah terdata 🔥";
+  const displayCount = (totalResponden ?? 0) + BASE_COUNT;
+  const socialProof = `${displayCount.toLocaleString("id-ID")}+ warganet udah terdata 🔥`;
 
   return (
     <div className="flex flex-col items-center text-center max-w-md gap-5">
-      <span
-        className="text-6xl animate-fade-in-up"
-        style={{ animationDelay: "0ms" }}
-      >
+      <span className="text-6xl animate-fade-in-up" style={{ animationDelay: "0ms" }}>
         💘
       </span>
+
       <h1
         className="font-display text-4xl sm:text-5xl font-bold text-white text-shadow-soft leading-tight animate-fade-in-up"
         style={{ animationDelay: "80ms", opacity: 0 }}
@@ -203,6 +202,7 @@ function LandingScreen({
         <br />
         2026
       </h1>
+
       <p
         className="text-white/90 text-base leading-relaxed px-2 animate-fade-in-up"
         style={{ animationDelay: "160ms", opacity: 0 }}
@@ -210,7 +210,7 @@ function LandingScreen({
         40 pertanyaan jujur-jujuran. No filter, no boong-boongan.
       </p>
 
-      {/* Tipe bucin preview */}
+      {/* Tipe bucin preview — ikon beranimasi stagger */}
       <div
         className="flex gap-3 justify-center flex-wrap animate-fade-in-up"
         style={{ animationDelay: "240ms", opacity: 0 }}
@@ -220,22 +220,29 @@ function LandingScreen({
             key={t.label}
             className="flex flex-col items-center gap-1 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2"
           >
-            <span className="text-xl">{t.emoji}</span>
+            <span
+              className="text-xl animate-icon-pop"
+              style={{ animationDelay: t.delay }}
+            >
+              {t.emoji}
+            </span>
             <span className="text-white/80 text-[11px] font-medium">{t.label}</span>
           </div>
         ))}
       </div>
 
+      {/* Updated badge text */}
       <div
         className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-2.5 text-white/90 text-sm font-medium animate-fade-in-up"
         style={{ animationDelay: "300ms", opacity: 0 }}
       >
-        20 tipe bucin · Tiap orang beda hasil
+        Temukan apakah lo masuk kategori &ldquo;Bucin Akut&rdquo; atau malah si &ldquo;Es Batu&rdquo;
       </div>
 
+      {/* Mulai Sensus — breathing glow */}
       <button
         onClick={onStart}
-        className="font-display bg-bucin-gold text-bucin-deepred font-bold text-lg px-10 py-4 rounded-full shadow-lg active:scale-95 transition-transform mt-1 animate-fade-in-up"
+        className="font-display bg-bucin-gold text-bucin-deepred font-bold text-lg px-10 py-4 rounded-full shadow-lg active:scale-95 transition-transform mt-1 animate-breathe animate-fade-in-up"
         style={{ animationDelay: "380ms", opacity: 0 }}
       >
         Mulai Sensus →
@@ -249,6 +256,7 @@ function LandingScreen({
         {socialProof}
       </p>
 
+      {/* Intip hasil — pill dengan border */}
       <Link
         href="/hasil"
         className="text-white/85 text-sm font-semibold border border-white/40 rounded-full px-5 py-2 hover:bg-white/10 transition-colors animate-fade-in-up"
@@ -326,25 +334,18 @@ function LoadingScreen() {
 
   return (
     <div className="relative flex flex-col items-center gap-5 min-h-[200px] justify-center">
-      {/* Floating hearts */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {HEART_POS.map((h) => (
           <span
             key={h.id}
             className={`absolute bottom-0 ${h.size} text-white/30 animate-float-up`}
-            style={{
-              left: h.left,
-              animationDelay: h.delay,
-              animationDuration: h.dur,
-            }}
+            style={{ left: h.left, animationDelay: h.delay, animationDuration: h.dur }}
           >
             💗
           </span>
         ))}
       </div>
-
       <span className="text-6xl animate-heartbeat-fast relative z-10">💗</span>
-
       <p
         className={`font-display text-white text-base sm:text-lg font-medium text-center px-4 max-w-xs transition-opacity duration-300 ${
           visible ? "opacity-100" : "opacity-0"
@@ -384,7 +385,6 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
 
   return (
     <div className="flex flex-col items-center text-center max-w-md w-full gap-5">
-      {/* Confetti */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
           {CONFETTI_PIECES.map((p) => (
@@ -412,50 +412,38 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         {hasil.nama}
       </h2>
 
-      {/* Card utama */}
       <div className="bg-white rounded-3xl card-shadow p-6 w-full">
-        {/* Badge golongan */}
         <div className="flex items-center justify-between mb-3">
           <span className="bg-bucin-cream text-bucin-deepred text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
             Golongan #{hasil.golongan.rank} dari 20
           </span>
-          {/* Visual rank bar */}
           <div className="flex gap-0.5">
             {Array.from({ length: 10 }, (_, i) => (
               <div
                 key={i}
                 className="w-1.5 h-4 rounded-full"
                 style={{
-                  background:
-                    (i + 1) * 10 <= rankPct
-                      ? "#FF3D7F"
-                      : "rgba(194,24,91,0.12)",
+                  background: (i + 1) * 10 <= rankPct ? "#FF3D7F" : "rgba(194,24,91,0.12)",
                 }}
               />
             ))}
           </div>
         </div>
-
         <h3 className="font-display text-2xl sm:text-3xl font-bold text-bucin-pink mb-3 leading-snug">
           {hasil.golongan.nama}
         </h3>
-        <p className="text-gray-700 text-[15px] leading-relaxed mb-4">
-          {hasil.deskripsi}
-        </p>
+        <p className="text-gray-700 text-[15px] leading-relaxed mb-4">{hasil.deskripsi}</p>
         <div className="flex items-center gap-3 bg-bucin-cream rounded-2xl px-4 py-3">
           <span className="text-2xl animate-heartbeat">💓</span>
           <div className="text-left">
             <p className="text-bucin-deepred font-display font-bold text-xl">
               {hasil.percentage}%
             </p>
-            <p className="text-bucin-deepred/60 text-xs font-medium">
-              tingkat kebucinan
-            </p>
+            <p className="text-bucin-deepred/60 text-xs font-medium">tingkat kebucinan</p>
           </div>
         </div>
       </div>
 
-      {/* Share */}
       <div className="bg-white/15 backdrop-blur-sm rounded-3xl p-5 w-full">
         <ShareButtons
           nama={hasil.nama}
@@ -467,9 +455,12 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
       <p className="text-white/70 text-xs font-medium -mb-2">
         Cek seberapa parah kebucinan warga lain...
       </p>
+
+      {/* Tombol breathe biar menarik perhatian */}
       <Link
         href="/hasil"
-        className="font-display bg-white text-bucin-deepred font-bold px-8 py-3.5 rounded-full shadow-lg active:scale-95 transition-transform"
+        className="font-display bg-white text-bucin-deepred font-bold px-8 py-3.5 rounded-full shadow-lg animate-breathe"
+        style={{ display: "inline-block" }}
       >
         Lihat Hasil Responden Lain
       </Link>
