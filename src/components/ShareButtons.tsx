@@ -63,13 +63,25 @@ async function generateShareImage(
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, S, S);
 
-  // Deco circles
-  ctx.fillStyle = "rgba(255,255,255,0.06)";
-  ctx.beginPath(); ctx.arc(S * 0.85, S * 0.12, 240, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(S * 0.1, S * 0.88, 180, 0, Math.PI * 2); ctx.fill();
+  // Dot pattern overlay (subtle texture)
+  ctx.fillStyle = "rgba(255,255,255,0.07)";
+  for (let dx = 30; dx < S; dx += 55) {
+    for (let dy = 30; dy < S; dy += 55) {
+      ctx.beginPath();
+      ctx.arc(dx, dy, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
-  // White card
+  // Deco circles
+  ctx.fillStyle = "rgba(255,255,255,0.08)";
+  ctx.beginPath(); ctx.arc(S * 0.85, S * 0.1, 220, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(S * 0.1, S * 0.9, 170, 0, Math.PI * 2); ctx.fill();
+
+  // White card with glow
   const CM = 70, CW = S - CM * 2, CH = S - CM * 2, RD = 48;
+  ctx.shadowColor = "rgba(194,24,91,0.4)";
+  ctx.shadowBlur = 40;
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
   ctx.moveTo(CM + RD, CM);
@@ -83,14 +95,20 @@ async function generateShareImage(
   ctx.quadraticCurveTo(CM, CM, CM + RD, CM);
   ctx.closePath();
   ctx.fill();
+  ctx.shadowBlur = 0;
 
   const CX = S / 2;
   ctx.textAlign = "center";
 
-  // App label
-  ctx.fillStyle = "rgba(194,24,91,0.45)";
-  ctx.font = "500 32px Poppins, sans-serif";
-  ctx.fillText("KUIS BUCIN 2026", CX, CM + 60);
+  // Branding pill di atas kartu
+  const pillW = 280, pillH = 44, pillX = CX - pillW / 2, pillY = CM + 28;
+  ctx.fillStyle = "rgba(194,24,91,0.12)";
+  ctx.beginPath();
+  ctx.roundRect(pillX, pillY, pillW, pillH, 22);
+  ctx.fill();
+  ctx.fillStyle = "rgba(194,24,91,0.55)";
+  ctx.font = "600 24px Poppins, sans-serif";
+  ctx.fillText("✨  KUIS BUCIN 2026  ✨", CX, CM + 57);
 
   // Heart
   ctx.font = "80px sans-serif";
@@ -143,10 +161,21 @@ async function generateShareImage(
   ctx.font = "500 33px Poppins, sans-serif";
   ctx.fillText("tingkat kebucinan", CX, CM + 662);
 
-  // URL
-  ctx.fillStyle = "rgba(194,24,91,0.38)";
-  ctx.font = "28px Poppins, sans-serif";
-  ctx.fillText(url, CX, CM + CH - 35);
+  // URL pill box — lebih kontras dan branded
+  const urlShort = url.replace("https://", "");
+  ctx.font = "bold 28px Poppins, sans-serif";
+  const urlMeasure = ctx.measureText(urlShort).width;
+  const urlPillW = urlMeasure + 60;
+  const urlPillH = 52;
+  const urlPillX = CX - urlPillW / 2;
+  const urlPillY = CM + CH - 80;
+  ctx.fillStyle = "rgba(194,24,91,0.15)";
+  ctx.beginPath();
+  ctx.roundRect(urlPillX, urlPillY, urlPillW, urlPillH, 26);
+  ctx.fill();
+  ctx.fillStyle = "#C2185B";
+  ctx.font = "bold 26px Poppins, sans-serif";
+  ctx.fillText(urlShort, CX, urlPillY + 34);
 
   return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
 }
