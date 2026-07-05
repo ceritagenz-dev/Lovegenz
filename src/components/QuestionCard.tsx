@@ -18,10 +18,8 @@ const OPTION_EMOJI: Record<string, string> = {
 };
 
 export default function QuestionCard({ question, selected, onSelect }: Props) {
-  const locked = selected !== undefined;
   return (
     <div className="bg-white rounded-3xl card-shadow p-5 sm:p-7 w-full flex flex-col">
-      {/* Question text — min height biar proporsional, vertically centered */}
       <div className="flex items-center min-h-[72px] mb-5">
         <h2 className="font-display text-xl sm:text-2xl text-bucin-deepred font-semibold leading-snug w-full">
           {question.question}
@@ -34,12 +32,11 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
           return (
             <button
               key={opt.label}
-              onClick={() => !locked && onSelect(opt.label)}
-              disabled={locked}
-              className={`group flex items-center gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 min-h-[56px] disabled:active:scale-100 ${
+              onClick={() => onSelect(opt.label)}
+              className={`group flex items-center gap-3 text-left rounded-2xl px-4 py-3.5 border-2 transition-all duration-150 min-h-[56px] active:scale-[0.98] ${
                 isSelected
                   ? "border-bucin-pink bg-bucin-cream shadow-md animate-bounce-select"
-                  : "border-gray-100 bg-white hover:border-bucin-pink/40 hover:bg-bucin-cream/50 active:scale-[0.98]"
+                  : "border-gray-100 bg-white hover:border-bucin-pink/40 hover:bg-bucin-cream/50"
               }`}
             >
               <span
