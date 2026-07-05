@@ -49,6 +49,7 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
   const [totalResponden, setTotalResponden] = useState<number | null>(null);
   const submittingRef = useRef(false);
+  const clickLockRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -72,10 +73,14 @@ export default function Home() {
   const question = QUIZ_QUESTIONS[currentQ];
 
   const handleSelectOption = (label: string) => {
-    if (submittingRef.current) return;
+    if (submittingRef.current || clickLockRef.current) return;
+    clickLockRef.current = true;
+
     const updated = { ...answers, [question.id]: label };
     setAnswers(updated);
+
     setTimeout(() => {
+      clickLockRef.current = false;
       if (currentQ + 1 < totalQuestions) {
         setCurrentQ(currentQ + 1);
       } else {
@@ -116,12 +121,21 @@ export default function Home() {
   const handleStartQuiz = () => setStage("nama");
 
   const handleSubmitNama = () => {
-    if (nama.trim().length === 0) return;
+    if (nama.trim().length < 3) return;
     setStage("quiz");
   };
 
   const handleBack = () => {
-    if (currentQ > 0) setCurrentQ(currentQ - 1);
+    if (currentQ > 0) {
+      clickLockRef.current = false; // reset lock saat navigasi balik
+      setCurrentQ(currentQ - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentQ + 1 < totalQuestions) {
+      setCurrentQ(currentQ + 1);
+    }
   };
 
   return (
@@ -143,16 +157,24 @@ export default function Home() {
             selected={answers[question.id]}
             onSelect={handleSelectOption}
           />
-          {currentQ > 0 && (
-            <div className="flex justify-center pb-4">
+          <div className="flex items-center justify-between pb-4 px-1">
+            {currentQ > 0 ? (
               <button
                 onClick={handleBack}
                 className="text-white/80 text-sm font-medium underline-offset-2 hover:underline px-4 py-2"
               >
-                ← Soal sebelumnya
+                ← Sebelumnya
               </button>
-            </div>
-          )}
+            ) : <div />}
+            {answers[question.id] !== undefined && currentQ + 1 < totalQuestions && (
+              <button
+                onClick={handleNext}
+                className="text-white/80 text-sm font-medium underline-offset-2 hover:underline px-4 py-2"
+              >
+                Selanjutnya →
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -429,8 +451,31 @@ const CONFETTI_COLORS = [
   "#FFD166", "#FF3D7F", "#A91079", "#E0115F", "#ffffff", "#FF1493",
 ];
 
+const HEADLINES = [
+  "Hasil Kuis Bucin untuk", "Sertifikat Bucin buat", "Level Kebucinan",
+  "Jejak Bucin Si Paling", "Bukti Resmi Kebucinan", "Data Bucin Milik",
+  "Laporan Kebucinan dari", "Rekam Jejak Bucin", "Gelar Bucin Diraih",
+  "Kartu Bucin atas Nama", "Status Bucin Terkonfirmasi", "Diagnosa Bucin untuk",
+  "Hasil Sensus Bucin dari", "Level Resmi Kebucinan", "Rapor Bucin milik",
+  "Cap Bucin Buat", "Ini Hasilnya, Sis/Bro:", "Udah Ketauan Level Lo",
+  "Lo Resmi Masuk Golongan", "Kebucinan Lo Terukur", "Ini Faktanya tentang",
+  "Buku Raport Bucin dari", "Nilai Akhir Kebucinan", "Tingkat Bucin Resmi",
+  "Hasil Tes Kejujuran dari", "Pengakuan Bucin Milik", "Data Hati dari",
+  "Profil Bucin untuk", "Rekaman Perasaan dari", "Kondisi Hati Terkini",
+  "Fakta Bucin tentang", "Profil Asmara dari", "Status Kebucinan Level",
+  "Ini Dia Hasilnya,", "Sudah Tercatat:", "Terbukti dan Tersimpan:",
+  "Kebucinan Resmi Milik", "Laporan Hati dari", "Seberapa Bucin Si",
+  "Hasil Kuis Jujur dari",
+];
+
+function pickHeadline(nama: string, percentage: number): string {
+  const idx = (nama.length * 7 + percentage * 3) % HEADLINES.length;
+  return HEADLINES[idx];
+}
+
 function HasilScreen({ hasil }: { hasil: HasilData }) {
   const [showConfetti, setShowConfetti] = useState(true);
+  const headline = pickHeadline(hasil.nama, hasil.percentage);
 
   useEffect(() => {
     const t = setTimeout(() => setShowConfetti(false), 4000);
@@ -463,13 +508,13 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
       )}
 
       <span className="text-5xl">🏆</span>
-      <p className="text-white/85 text-sm font-medium">Hasil Kuis Bucin untuk</p>
+      <p className="text-white/85 text-sm font-medium">{headline}</p>
       <h2 className="font-display text-2xl font-bold text-white text-shadow-soft -mt-2">
         {hasil.nama}
       </h2>
 
       <div className="bg-white rounded-3xl card-shadow p-6 w-full">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <span className="bg-bucin-cream text-bucin-deepred text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full">
             Golongan #{hasil.golongan.rank} dari 20
           </span>
@@ -485,7 +530,7 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
             ))}
           </div>
         </div>
-        <p className="text-[11px] text-bucin-deepred/50 font-medium mb-2 text-left">
+        <p className="text-[11px] text-bucin-deepred/50 font-medium mb-3 text-left">
           {hasil.golongan.rank <= 5
             ? "Lo termasuk yang paling 'waras' di kuis ini 😎"
             : hasil.golongan.rank <= 10
@@ -498,13 +543,26 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
           {hasil.golongan.nama}
         </h3>
         <p className="text-gray-700 text-[15px] leading-relaxed mb-4">{hasil.deskripsi}</p>
-        <div className="flex items-center gap-3 bg-bucin-cream rounded-2xl px-4 py-3">
-          <span className="text-2xl animate-heartbeat">💓</span>
-          <div className="text-left">
-            <p className="text-bucin-deepred font-display font-bold text-xl">
-              {hasil.percentage}%
-            </p>
-            <p className="text-bucin-deepred/60 text-xs font-medium">tingkat kebucinan</p>
+
+        {/* Percentage + Progress Bar */}
+        <div className="bg-bucin-cream rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-2xl animate-heartbeat">💓</span>
+            <div className="text-left">
+              <p className="text-bucin-deepred font-display font-bold text-xl">
+                {hasil.percentage}%
+              </p>
+              <p className="text-bucin-deepred/60 text-xs font-medium">tingkat kebucinan</p>
+            </div>
+          </div>
+          <div className="h-2.5 rounded-full bg-bucin-pink/20 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${hasil.percentage}%`,
+                background: "linear-gradient(90deg, #FFD166, #FF3D7F, #E0115F)",
+              }}
+            />
           </div>
         </div>
       </div>
@@ -521,7 +579,6 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         Cek seberapa parah kebucinan warga lain...
       </p>
 
-      {/* Tombol breathe biar menarik perhatian */}
       <Link
         href="/hasil"
         className="font-display bg-white text-bucin-deepred font-bold px-8 py-3.5 rounded-full shadow-lg animate-breathe"
@@ -534,7 +591,7 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         href="https://ceritagenz.vercel.app/"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full flex items-center justify-center gap-2.5 bg-[#6C63FF] text-white font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform"
+        className="w-full flex items-center justify-center gap-2.5 bg-[#6C63FF] text-white font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform mt-4"
       >
         <span className="text-xl">🗳️</span>
         Lo warganet golongan apa? Cek sekarang →
