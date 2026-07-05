@@ -8,6 +8,54 @@ type Props = {
   percentage: number;
 };
 
+const SHARE_HEADERS = [
+  "Kekuatan kebucinan lo udah resmi tercatat, sekarang waktunya pamer:",
+  "Dunia harus tau lo ada di level ini. Pamer dulu:",
+  "Hasil lo udah keluar — jangan disimpen sendiri:",
+  "Circle lo harus tau ini. Gas share:",
+  "Ini bukan malu, ini kebanggaan. Share sekarang:",
+  "Seberapa bucin lo udah terbukti secara ilmiah. Sebar:",
+  "Gelar resmi lo udah keluar. Waktunya pamer ke circle:",
+  "Bukan rahasia lagi — ini saatnya lo jujur ke semua orang:",
+  "Data lo udah masuk. Sekarang giliran orang lain tau:",
+  "Lo udah berani jujur 40 soal, sekarang berani share:",
+  "Hasil tes kejujuran lo siap dipamerin:",
+  "Sertifikat kebucinan lo sudah terbit. Bagikan:",
+  "Ini bukan aib, ini achievement. Pamerin:",
+  "Level lo udah ketahuan — sekarang tantang doi tes juga:",
+  "Kuis selesai, saatnya flex ke timeline:",
+  "Fakta bucin lo udah resmi. Share ke yang penasaran:",
+  "Lo udah berani tes, sekarang berani pamerin hasilnya:",
+  "Jangan sendirian bucin-nya. Ajak yang lain tes juga:",
+  "Ini moment paling jujur lo hari ini. Bagikan:",
+  "Data kebucinan lo udah dikunci. Gas pamer:",
+  "Hasilnya udah ada, tinggal lo yang berani share:",
+  "Ini saat lo jujur ke circle soal kondisi hati lo:",
+  "Golongan lo udah ketahuan. Kasih tau mereka juga:",
+  "Lo udah berani ngisi 40 soal — sekarang berani share:",
+  "Kalau doi lihat ini, salam dari hati lo yang jujur:",
+  "Bukti resmi sudah ada. Saatnya dunia tau:",
+  "Ini hasil lo. Ini kebenaran lo. Share dengan bangga:",
+  "Makin banyak yang tau, makin seru. Gas share:",
+  "Tes udah selesai — saatnya circle lo ikut tes juga:",
+  "Lo jujur sama diri sendiri. Sekarang jujur ke timeline:",
+  "Satu langkah lagi: kasih tau orang-orang di circle lo:",
+  "Hasil real, bukan rekayasa. Share ke yang penasaran:",
+  "Ini dia datanya. Siapa yang berani share pertama?",
+  "Kebucinan lo sudah terkalkulasi. Waktunya viral:",
+  "Data udah ada, caption tinggal lo yang buat:",
+  "Pamerin hasilnya — biar teman lo ikut tes juga:",
+  "Share ke doi, lihat reaksinya. Hehe:",
+  "Level bucin lo — resmi, terukur, siap dibagikan:",
+  "Ini hasil lo. Bangga atau malu, tetap share:",
+  "Jangan jadi satu-satunya yang tau. Sebar:",
+];
+
+function pickShareHeader(nama: string, percentage: number): string {
+  const idx = (nama.length * 11 + percentage * 7) % SHARE_HEADERS.length;
+  return SHARE_HEADERS[idx];
+}
+
 const TWEET_CAPTION = (golonganNama: string, percentage: number) =>
   `Golongan gue udah keluar 😭🚩\n\n"${golonganNama}" — ${percentage}% tingkat kebucinan\n\nGolongan lo apa? Coba tes kalau berani, ini 40 soal yang bikin mikir ulang soal hubungan.`;
 
@@ -161,7 +209,7 @@ async function generateShareImage(
   ctx.font = "500 33px Poppins, sans-serif";
   ctx.fillText("tingkat kebucinan", CX, CM + 662);
 
-  // URL pill box — lebih kontras dan branded
+  // URL pill box + @ceritagenz watermark
   const urlShort = url.replace("https://", "");
   ctx.font = "bold 28px Poppins, sans-serif";
   const urlMeasure = ctx.measureText(urlShort).width;
@@ -177,6 +225,12 @@ async function generateShareImage(
   ctx.font = "bold 26px Poppins, sans-serif";
   ctx.fillText(urlShort, CX, urlPillY + 34);
 
+  // @ceritagenz watermark — pojok kanan bawah background
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "500 22px Poppins, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("@ceritagenz", S - 28, S - 22);
+
   return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
 }
 
@@ -185,6 +239,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState("");
 
+  const shareHeader = pickShareHeader(nama, percentage);
   const shareUrl =
     typeof window !== "undefined" ? window.location.origin : "https://lovegenz.vercel.app";
 
@@ -202,13 +257,13 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
     if (
       blob &&
       navigator.canShare &&
-      navigator.canShare({ files: [new File([blob], "hasil-sensus.png", { type: "image/png" })] })
+      navigator.canShare({ files: [new File([blob], "hasil-kuis-bucin.png", { type: "image/png" })] })
     ) {
       try {
         await navigator.share({
           title: "Kuis Bucin 2026",
           text: caption,
-          files: [new File([blob], "hasil-sensus.png", { type: "image/png" })],
+          files: [new File([blob], "hasil-kuis-bucin.png", { type: "image/png" })],
         });
         return;
       } catch {}
@@ -227,7 +282,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `sensus-bucin-${nama}.png`;
+    a.download = `kuis-bucin-${nama}.png`;
     a.click();
     URL.revokeObjectURL(url);
     showToast("Hasil udah masuk galeri! Jangan lupa pamerin di Story ya! 😉");
@@ -245,15 +300,14 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
 
   return (
     <div className="w-full relative">
-      {/* Toast notification */}
       {toast && (
-        <div className="absolute -top-14 left-0 right-0 mx-auto bg-white text-bucin-deepred text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg text-center transition-all z-10">
+        <div className="absolute -top-14 left-0 right-0 mx-auto bg-white text-bucin-deepred text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg text-center z-10">
           {toast}
         </div>
       )}
 
       <p className="font-display text-center text-white font-semibold mb-3 text-sm text-shadow-soft">
-        Kekuatan kebucinan lo udah resmi tercatat, sekarang waktunya pamer:
+        {shareHeader}
       </p>
 
       <div className="grid grid-cols-3 gap-2.5">
@@ -289,7 +343,6 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         </a>
       </div>
 
-      {/* Download gambar — tombol utama yang paling menonjol */}
       <button
         onClick={handleDownloadImage}
         disabled={generating}
@@ -306,7 +359,6 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         {copied ? "Tersalin ✓" : "Atau salin teks & link"}
       </button>
 
-      {/* Follow */}
       <a
         href="https://x.com/ceritagenz"
         target="_blank"
