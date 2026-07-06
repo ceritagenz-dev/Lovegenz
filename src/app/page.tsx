@@ -149,25 +149,32 @@ export default function Home() {
       )}
 
       {stage === "quiz" && (
-        <div className="w-full max-w-xl flex flex-col gap-5">
+        <div className="w-full max-w-xl flex flex-col gap-4">
           <HeartbeatProgress current={currentQ + 1} total={totalQuestions} />
+
+          {/* Back button — di antara progress bar dan card, rata kiri */}
+          {currentQ > 0 && (
+            <div className="flex justify-start">
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1.5 text-white/85 text-xs font-semibold border border-white/30 rounded-full px-3.5 py-1.5 active:scale-95 transition-transform hover:bg-white/10"
+              >
+                {/* Undo / curved back arrow icon */}
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 14 4 9l5-5"/>
+                  <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
+                </svg>
+                Putar balik
+              </button>
+            </div>
+          )}
+
           <QuestionCard
             key={question.id}
             question={question}
             selected={answers[question.id]}
             onSelect={handleSelectOption}
           />
-          <div className="flex items-center justify-between pb-4 px-1">
-            {currentQ > 0 ? (
-              <button
-                onClick={handleBack}
-                className="text-white/80 text-sm font-medium underline-offset-2 hover:underline px-4 py-2"
-              >
-                ← Sebelumnya
-              </button>
-            ) : <div />}
-            <div />
-          </div>
         </div>
       )}
 
