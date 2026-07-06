@@ -166,14 +166,7 @@ export default function Home() {
                 ← Sebelumnya
               </button>
             ) : <div />}
-            {answers[question.id] !== undefined && currentQ + 1 < totalQuestions && (
-              <button
-                onClick={handleNext}
-                className="text-white/80 text-sm font-medium underline-offset-2 hover:underline px-4 py-2"
-              >
-                Selanjutnya →
-              </button>
-            )}
+            <div />
           </div>
         </div>
       )}
