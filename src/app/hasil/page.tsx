@@ -82,7 +82,7 @@ export default function HasilPage() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const res  = await fetch(`/api/results?page=0`, { cache: "no-store" });
+      const res  = await fetch(`/api/results?page=0&t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       setResults(data.results || []);
       setTotal(data.total   || 0);
