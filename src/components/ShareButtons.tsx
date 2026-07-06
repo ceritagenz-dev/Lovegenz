@@ -378,7 +378,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
           <p className="font-display font-bold text-bucin-deepred text-sm leading-tight">
             Follow @ceritagenz
           </p>
-          <p className="text-bucin-deepred/60 text-xs leading-snug mt-0.5 truncate">
+          <p className="text-bucin-deepred/60 text-xs leading-snug mt-0.5">
             Random thoughts generasi yang capek tapi tetep jalan 🐥
           </p>
         </div>
