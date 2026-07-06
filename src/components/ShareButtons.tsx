@@ -359,16 +359,34 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         {copied ? "Tersalin ✓" : "Atau salin teks & link"}
       </button>
 
+      {/* Follow @ceritagenz card */}
       <a
         href="https://x.com/ceritagenz"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 flex items-center justify-center gap-2 w-full bg-black text-white rounded-full py-3 font-semibold text-sm active:scale-95 transition-transform border border-white/20"
+        className="mt-3 w-full flex items-center gap-3 bg-bucin-cream border-2 border-bucin-pink/30 rounded-2xl px-4 py-3.5 active:scale-95 transition-transform"
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-        Follow @ceritagenz
+        {/* X logo circle */}
+        <div className="flex-shrink-0 w-11 h-11 rounded-full bg-black flex items-center justify-center shadow">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="white" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+        </div>
+
+        {/* Text */}
+        <div className="flex-1 text-left min-w-0">
+          <p className="font-display font-bold text-bucin-deepred text-sm leading-tight">
+            Follow @ceritagenz
+          </p>
+          <p className="text-bucin-deepred/60 text-xs leading-snug mt-0.5 truncate">
+            Random thoughts generasi yang capek tapi tetep jalan 🐥
+          </p>
+        </div>
+
+        {/* Follow button */}
+        <div className="flex-shrink-0 bg-black text-white text-xs font-bold px-4 py-2 rounded-full">
+          Follow
+        </div>
       </a>
     </div>
   );
