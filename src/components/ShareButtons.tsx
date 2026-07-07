@@ -392,39 +392,41 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
         <button
           onClick={handleNativeShare}
           disabled={generating}
-          className="flex flex-col items-center gap-1.5 bg-bucin-pink text-white rounded-2xl py-3 active:scale-95 transition-transform disabled:opacity-70"
+          className="flex flex-col items-center gap-2 bg-bucin-pink text-white rounded-2xl py-3.5 active:scale-95 transition-transform disabled:opacity-70"
         >
-          <span className="text-xl">{generating ? "⏳" : "📲"}</span>
-          <span className="text-xs font-semibold">Share</span>
+          <span className="text-2xl">{generating ? "⏳" : "📲"}</span>
+          <span className="text-[11px] font-normal tracking-wide">Share</span>
         </button>
 
         <a
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1.5 bg-[#25D366] text-white rounded-2xl py-3 active:scale-95 transition-transform"
+          className="flex flex-col items-center gap-2 bg-[#25D366] text-white rounded-2xl py-3.5 active:scale-95 transition-transform"
         >
-          <span className="text-xl">💬</span>
-          <span className="text-xs font-semibold">WhatsApp</span>
+          <span className="text-2xl">💬</span>
+          <span className="text-[11px] font-normal tracking-wide">WhatsApp</span>
         </a>
 
         <a
           href={twitterLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1.5 bg-black text-white rounded-2xl py-3 active:scale-95 transition-transform"
+          className="flex flex-col items-center gap-2 bg-black text-white rounded-2xl py-3.5 active:scale-95 transition-transform"
         >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-          <span className="text-xs font-semibold">Post</span>
+          <span className="text-[11px] font-normal tracking-wide">Post</span>
         </a>
       </div>
 
+      {/* Simpan gambar — premium gold glow */}
       <button
         onClick={handleDownloadImage}
         disabled={generating}
-        className="w-full mt-3 flex items-center justify-center gap-2 bg-bucin-gold text-bucin-deepred text-sm font-bold py-3.5 rounded-2xl active:scale-95 transition-transform disabled:opacity-70 shadow-md"
+        className="w-full mt-3 flex items-center justify-center gap-2 bg-bucin-gold text-bucin-deepred text-sm font-bold py-3.5 rounded-2xl active:scale-95 transition-transform disabled:opacity-70"
+        style={{ boxShadow: "0 4px 20px rgba(255,209,102,0.5), 0 0 0 1px rgba(255,209,102,0.3)" }}
       >
         <span className="text-base">{generating ? "⏳" : "⬇️"}</span>
         {generating ? "Generating gambar..." : "Simpan gambar hasil"}
