@@ -149,17 +149,16 @@ export default function Home() {
       )}
 
       {stage === "quiz" && (
-        <div className="w-full max-w-xl flex flex-col gap-4">
+        <div className="w-full max-w-xl flex flex-col gap-3">
           <HeartbeatProgress current={currentQ + 1} total={totalQuestions} />
 
-          {/* Back button — di antara progress bar dan card, rata kiri */}
+          {/* Back button */}
           {currentQ > 0 && (
             <div className="flex justify-start">
               <button
                 onClick={handleBack}
                 className="flex items-center gap-1.5 text-white/85 text-xs font-semibold border border-white/30 rounded-full px-3.5 py-1.5 active:scale-95 transition-transform hover:bg-white/10"
               >
-                {/* Undo / curved back arrow icon */}
                 <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 14 4 9l5-5"/>
                   <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
@@ -169,12 +168,14 @@ export default function Home() {
             </div>
           )}
 
-          <QuestionCard
-            key={question.id}
-            question={question}
-            selected={answers[question.id]}
-            onSelect={handleSelectOption}
-          />
+          <div className="mt-1">
+            <QuestionCard
+              key={question.id}
+              question={question}
+              selected={answers[question.id]}
+              onSelect={handleSelectOption}
+            />
+          </div>
         </div>
       )}
 
@@ -226,15 +227,15 @@ function LandingScreen({
       </h1>
 
       <p
-        className="text-white/90 text-base leading-relaxed px-2 animate-fade-in-up"
+        className="text-white/90 text-base leading-loose px-2 animate-fade-in-up"
         style={{ animationDelay: "160ms", opacity: 0 }}
       >
         40 pertanyaan jujur-jujuran. No filter, no boong-boongan.
         <br />
-        <span className="text-white/70 text-sm">⏱ Kurang dari 3 menit</span>
+        <span className="text-white/75 text-sm">⏱ Kurang dari 3 menit</span>
       </p>
 
-      {/* Tipe bucin preview — ikon beranimasi stagger */}
+      {/* Tipe bucin preview — dengan shadow elevasi */}
       <div
         className="flex gap-3 justify-center flex-wrap animate-fade-in-up"
         style={{ animationDelay: "240ms", opacity: 0 }}
@@ -242,7 +243,8 @@ function LandingScreen({
         {TIPE_PREVIEW.map((t) => (
           <div
             key={t.label}
-            className="flex flex-col items-center gap-1 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2"
+            className="flex flex-col items-center gap-1 bg-white/20 backdrop-blur-sm rounded-xl px-3 py-2 shadow-md hover:scale-105 transition-transform"
+            style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
           >
             <span
               className="text-xl animate-icon-pop"
@@ -250,12 +252,12 @@ function LandingScreen({
             >
               {t.emoji}
             </span>
-            <span className="text-white/80 text-[11px] font-medium">{t.label}</span>
+            <span className="text-white/90 text-[11px] font-semibold">{t.label}</span>
           </div>
         ))}
       </div>
 
-      {/* Updated badge text */}
+      {/* Badge text */}
       <div
         className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-2.5 text-white/90 text-sm font-medium animate-fade-in-up"
         style={{ animationDelay: "300ms", opacity: 0 }}
@@ -263,7 +265,7 @@ function LandingScreen({
         Temukan apakah lo masuk kategori &ldquo;Bucin Akut&rdquo; atau malah si &ldquo;Es Batu&rdquo;
       </div>
 
-      {/* Mulai Sensus — breathing glow */}
+      {/* Mulai Kuis — breathing glow */}
       <button
         onClick={onStart}
         className="font-display bg-bucin-gold text-bucin-deepred font-bold text-lg px-10 py-4 rounded-full shadow-lg active:scale-95 transition-transform mt-1 animate-breathe animate-fade-in-up"
@@ -272,10 +274,10 @@ function LandingScreen({
         Mulai Kuis →
       </button>
 
-      {/* Social proof */}
+      {/* Social proof — lebih bold dan mencolok */}
       <p
-        className="text-white/75 text-xs font-medium -mt-2 animate-fade-in-up"
-        style={{ animationDelay: "430ms", opacity: 0 }}
+        className="text-white font-bold text-sm -mt-2 animate-fade-in-up"
+        style={{ animationDelay: "430ms", opacity: 0, textShadow: "0 1px 8px rgba(0,0,0,0.2)" }}
       >
         {socialProof}
       </p>
@@ -575,14 +577,14 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         />
       </div>
 
-      <p className="text-white/70 text-xs font-medium -mb-2">
+      <p className="text-white/70 text-xs font-medium -mb-1">
         Cek seberapa parah kebucinan warga lain...
       </p>
 
       <Link
         href="/hasil"
-        className="font-display bg-white text-bucin-deepred font-bold px-8 py-3.5 rounded-full shadow-lg animate-breathe"
-        style={{ display: "inline-block" }}
+        className="font-display bg-white text-bucin-deepred font-bold px-8 py-3.5 rounded-full animate-breathe"
+        style={{ display: "inline-block", boxShadow: "0 4px 20px rgba(255,255,255,0.3), 0 0 0 1px rgba(255,255,255,0.1)" }}
       >
         Lihat Hasil Responden Lain
       </Link>
@@ -591,7 +593,8 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
         href="https://ceritagenz.vercel.app/"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full flex items-center justify-center gap-2.5 bg-[#6C63FF] text-white font-display font-bold text-base rounded-full py-4 shadow-lg active:scale-95 transition-transform mt-4"
+        className="w-full flex items-center justify-center gap-2.5 bg-[#6C63FF] text-white font-display font-bold text-base rounded-full py-4 active:scale-95 transition-transform mt-3"
+        style={{ boxShadow: "0 4px 20px rgba(108,99,255,0.4)" }}
       >
         <span className="text-xl">🗳️</span>
         Lo warganet golongan apa? Cek sekarang →
