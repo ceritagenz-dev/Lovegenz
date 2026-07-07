@@ -533,7 +533,7 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
           </div>
         </div>
         {/* Engaging micro-copy */}
-        <p className="text-[11px] text-bucin-pink font-semibold mb-3 text-left">
+        <p className="text-[11px] text-bucin-pink font-semibold mb-4 mt-1 text-left">
           {hasil.golongan.rank <= 5
             ? "Hati lo masih bersih ✨ Gak ada virus bucin di sini"
             : hasil.golongan.rank <= 10
@@ -542,12 +542,26 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
             ? "Waduh, gawat! 😂 Level kebucinan lo udah cukup parah nih"
             : "MAYDAY MAYDAY 🚨 Bucin level kritis terdeteksi!"}
         </p>
-        {/* Golongan name — extra bold, bigger */}
-        <h3 className="font-display text-3xl sm:text-4xl font-extrabold text-bucin-pink mb-3 leading-tight">
+        {/* Golongan name — sticker effect, uppercase, pop */}
+        <h3
+          className="font-display text-3xl sm:text-4xl font-extrabold text-bucin-pink mb-4 leading-tight uppercase tracking-tight"
+          style={{
+            textShadow: "2px 3px 0px rgba(169,16,121,0.25), 0 0 24px rgba(255,61,127,0.12)",
+            transform: "rotate(-1deg)",
+            display: "inline-block",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
           {hasil.golongan.nama}
         </h3>
-        {/* Description — darker for better contrast */}
-        <p className="text-bucin-deepred/75 text-[15px] leading-relaxed mb-5">{hasil.deskripsi}</p>
+        {/* Description — better contrast, spacious line-height */}
+        <p
+          className="text-bucin-deepred/75 text-[15px] mb-5"
+          style={{ lineHeight: "1.65" }}
+        >
+          {hasil.deskripsi}
+        </p>
 
         {/* Percentage + Progress Bar — more bottom padding */}
         <div className="bg-bucin-cream rounded-2xl px-4 pt-3 pb-4">
