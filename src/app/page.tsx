@@ -532,22 +532,25 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
             ))}
           </div>
         </div>
-        <p className="text-[11px] text-bucin-deepred/50 font-medium mb-3 text-left">
+        {/* Engaging micro-copy */}
+        <p className="text-[11px] text-bucin-pink font-semibold mb-3 text-left">
           {hasil.golongan.rank <= 5
-            ? "Lo termasuk yang paling 'waras' di kuis ini 😎"
+            ? "Hati lo masih bersih ✨ Gak ada virus bucin di sini"
             : hasil.golongan.rank <= 10
-            ? "Bucin level sedang — masih bisa dikontrol 😅"
+            ? "Agak kena dikit, tapi masih bisa diselamatin 😅"
             : hasil.golongan.rank <= 15
-            ? "Lumayan juga nih, tapi masih ada yang lebih parah! 😬"
-            : "Lo bagian dari 20% paling bucin di seluruh kuis ini 🏆"}
+            ? "Waduh, gawat! 😂 Level kebucinan lo udah cukup parah nih"
+            : "MAYDAY MAYDAY 🚨 Bucin level kritis terdeteksi!"}
         </p>
-        <h3 className="font-display text-2xl sm:text-3xl font-bold text-bucin-pink mb-3 leading-snug">
+        {/* Golongan name — extra bold, bigger */}
+        <h3 className="font-display text-3xl sm:text-4xl font-extrabold text-bucin-pink mb-3 leading-tight">
           {hasil.golongan.nama}
         </h3>
-        <p className="text-gray-700 text-[15px] leading-relaxed mb-4">{hasil.deskripsi}</p>
+        {/* Description — darker for better contrast */}
+        <p className="text-bucin-deepred/75 text-[15px] leading-relaxed mb-5">{hasil.deskripsi}</p>
 
-        {/* Percentage + Progress Bar */}
-        <div className="bg-bucin-cream rounded-2xl px-4 py-3">
+        {/* Percentage + Progress Bar — more bottom padding */}
+        <div className="bg-bucin-cream rounded-2xl px-4 pt-3 pb-4">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-2xl animate-heartbeat">💓</span>
             <div className="text-left">
