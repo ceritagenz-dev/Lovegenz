@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { useState } from "react";
 
@@ -111,7 +111,7 @@ async function generateShareImage(
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, S, S);
 
-  // Dot pattern overlay (subtle texture)
+  // Dot pattern
   ctx.fillStyle = "rgba(255,255,255,0.07)";
   for (let dx = 30; dx < S; dx += 55) {
     for (let dy = 30; dy < S; dy += 55) {
@@ -120,6 +120,20 @@ async function generateShareImage(
       ctx.fill();
     }
   }
+
+  // Floating heart elements (scattered)
+  const heartEmojis = ["💗", "💕", "✨", "💓", "💖"];
+  ctx.font = "36px sans-serif";
+  ctx.globalAlpha = 0.12;
+  const heartPos = [
+    [80, 120], [980, 200], [120, 900], [960, 850],
+    [200, 500], [900, 480], [500, 60], [550, 1010],
+    [320, 220], [780, 750],
+  ];
+  heartPos.forEach(([hx, hy], i) => {
+    ctx.fillText(heartEmojis[i % heartEmojis.length], hx, hy);
+  });
+  ctx.globalAlpha = 1;
 
   // Deco circles
   ctx.fillStyle = "rgba(255,255,255,0.08)";
@@ -148,25 +162,36 @@ async function generateShareImage(
   const CX = S / 2;
   ctx.textAlign = "center";
 
-  // Branding pill di atas kartu
-  const pillW = 280, pillH = 44, pillX = CX - pillW / 2, pillY = CM + 28;
-  ctx.fillStyle = "rgba(194,24,91,0.12)";
+  // Branding badge — dengan glow effect
+  const pillW = 320, pillH = 48, pillX = CX - pillW / 2, pillY = CM + 24;
+  const pillGrad = ctx.createLinearGradient(pillX, 0, pillX + pillW, 0);
+  pillGrad.addColorStop(0, "rgba(255,61,127,0.18)");
+  pillGrad.addColorStop(1, "rgba(169,16,121,0.18)");
+  ctx.fillStyle = pillGrad;
+  ctx.shadowColor = "rgba(255,61,127,0.3)";
+  ctx.shadowBlur = 12;
   ctx.beginPath();
-  ctx.roundRect(pillX, pillY, pillW, pillH, 22);
+  ctx.roundRect(pillX, pillY, pillW, pillH, 24);
   ctx.fill();
-  ctx.fillStyle = "rgba(194,24,91,0.55)";
-  ctx.font = "600 24px Poppins, sans-serif";
-  ctx.fillText("✨  KUIS BUCIN 2026  ✨", CX, CM + 57);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(194,24,91,0.7)";
+  ctx.font = "700 22px Poppins, sans-serif";
+  ctx.fillText("✨  KUIS BUCIN 2026  ✨", CX, CM + 54);
 
   // Heart
   ctx.font = "80px sans-serif";
   ctx.fillText("💓", CX, CM + 155);
 
-  // Nama
+  // Nama — dengan text shadow
+  ctx.shadowColor = "rgba(194,24,91,0.2)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 3;
   ctx.fillStyle = "#C2185B";
   const namaDisplay = nama.length > 18 ? nama.slice(0, 16) + "…" : nama;
   ctx.font = "bold 60px Poppins, sans-serif";
   ctx.fillText(namaDisplay, CX, CM + 245);
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
 
   // Divider
   ctx.strokeStyle = "rgba(194,24,91,0.15)";
@@ -199,37 +224,41 @@ async function generateShareImage(
   ctx.fillText(line1, CX, golY);
   if (line2) ctx.fillText(line2, CX, golY + lineH);
 
-  // Percentage — posisi FIXED y=610, tidak pernah bergerak
+  // Percentage — text shadow untuk efek timbul
+  ctx.shadowColor = "rgba(194,24,91,0.25)";
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 4;
   ctx.fillStyle = "#C2185B";
   ctx.font = "bold 148px Poppins, sans-serif";
   ctx.fillText(`${percentage}%`, CX, CM + 610);
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
 
-  // Label
+  // Label tingkat kebucinan
   ctx.fillStyle = "rgba(194,24,91,0.5)";
   ctx.font = "500 33px Poppins, sans-serif";
   ctx.fillText("tingkat kebucinan", CX, CM + 662);
 
-  // URL pill box + @ceritagenz watermark
+  // URL pill — di dalam kartu
   const urlShort = url.replace("https://", "");
-  ctx.font = "bold 28px Poppins, sans-serif";
+  ctx.font = "bold 26px Poppins, sans-serif";
   const urlMeasure = ctx.measureText(urlShort).width;
   const urlPillW = urlMeasure + 60;
-  const urlPillH = 52;
+  const urlPillH = 48;
   const urlPillX = CX - urlPillW / 2;
-  const urlPillY = CM + CH - 80;
-  ctx.fillStyle = "rgba(194,24,91,0.15)";
+  const urlPillY = CM + CH - 100;
+  ctx.fillStyle = "rgba(194,24,91,0.1)";
   ctx.beginPath();
-  ctx.roundRect(urlPillX, urlPillY, urlPillW, urlPillH, 26);
+  ctx.roundRect(urlPillX, urlPillY, urlPillW, urlPillH, 24);
   ctx.fill();
   ctx.fillStyle = "#C2185B";
-  ctx.font = "bold 26px Poppins, sans-serif";
-  ctx.fillText(urlShort, CX, urlPillY + 34);
+  ctx.fillText(urlShort, CX, urlPillY + 32);
 
-  // @ceritagenz watermark — pojok kanan bawah background
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  // @ceritagenz — di dalam card, di bawah URL, dengan padding
+  ctx.fillStyle = "rgba(194,24,91,0.4)";
   ctx.font = "500 22px Poppins, sans-serif";
-  ctx.textAlign = "right";
-  ctx.fillText("@ceritagenz", S - 28, S - 22);
+  ctx.textAlign = "center";
+  ctx.fillText("@ceritagenz", CX, CM + CH - 30);
 
   return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
 }
@@ -238,6 +267,7 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const shareHeader = pickShareHeader(nama, percentage);
   const shareUrl =
@@ -279,13 +309,24 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
     const blob = await generateShareImage(nama, golonganNama, percentage, shareUrl);
     setGenerating(false);
     if (!blob) return;
-    const url = URL.createObjectURL(blob);
+    const objUrl = URL.createObjectURL(blob);
+    setPreviewUrl(objUrl); // tampilkan modal preview dulu
+  };
+
+  const handleConfirmDownload = () => {
+    if (!previewUrl) return;
     const a = document.createElement("a");
-    a.href = url;
+    a.href = previewUrl;
     a.download = `kuis-bucin-${nama}.png`;
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
     showToast("Hasil udah masuk galeri! Jangan lupa pamerin di Story ya! 😉");
+  };
+
+  const handleClosePreview = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
   };
 
   const handleCopy = async () => {
@@ -300,6 +341,43 @@ export default function ShareButtons({ nama, golonganNama, percentage }: Props) 
 
   return (
     <div className="w-full relative">
+      {/* Preview modal */}
+      {previewUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backdropFilter: "blur(10px)", background: "rgba(0,0,0,0.65)" }}
+          onClick={handleClosePreview}
+        >
+          <div
+            className="bg-white rounded-3xl p-5 w-full max-w-sm flex flex-col gap-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={previewUrl}
+              alt="Preview hasil kuis"
+              className="w-full rounded-2xl"
+            />
+            <p className="text-center text-xs text-gray-400 font-medium">
+              Pastikan hasil sudah pas sebelum disimpan 👀
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleClosePreview}
+                className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm active:scale-95 transition-transform"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirmDownload}
+                className="flex-1 py-3 rounded-xl bg-bucin-gold text-bucin-deepred font-display font-bold text-sm active:scale-95 transition-transform"
+              >
+                ⬇️ Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
         <div className="absolute -top-14 left-0 right-0 mx-auto bg-white text-bucin-deepred text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg text-center z-10">
           {toast}
