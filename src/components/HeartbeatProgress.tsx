@@ -1,21 +1,17 @@
 "use client";
 
-type Props = {
-  current: number;
-  total: number;
-};
+type Props = { current: number; total: number };
 
 export default function HeartbeatProgress({ current, total }: Props) {
   const pct = Math.round((current / total) * 100);
-
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-2 px-1">
-        <span className="font-display text-white/90 text-sm font-medium">
+      <div className="flex items-center justify-between mb-2.5 px-1">
+        <span className="font-display text-white/85 text-sm font-semibold tracking-wide">
           Soal {current} / {total}
         </span>
-        <span className="font-display text-white text-sm font-semibold flex items-center gap-1">
-          <span className="animate-heartbeat inline-block">💓</span>
+        <span className="font-display text-white text-sm font-bold flex items-center gap-1.5">
+          <span className="animate-heartbeat-fast inline-block">💓</span>
           {pct}%
         </span>
       </div>
