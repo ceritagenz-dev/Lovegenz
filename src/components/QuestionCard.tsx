@@ -54,6 +54,6 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
           );
         })}
       </div>
-    </div>
+    </div> 
   );
 }
