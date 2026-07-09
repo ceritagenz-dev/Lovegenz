@@ -29,19 +29,19 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
             <button
               key={opt.label}
               onClick={() => onSelect(opt.label)}
-              className={`flex items-center gap-3.5 text-left rounded-2xl px-4 py-4 border-2 transition-all duration-150 min-h-[58px] active:scale-[0.97] ${
+              className={`flex items-center gap-3.5 text-left rounded-2xl px-4 py-4 border-2 transition-all duration-150 min-h-[62px] ${
                 isSel
                   ? "option-selected animate-bounce-select"
-                  : "border-gray-100 bg-white/80 hover:border-pink-200 hover:bg-pink-50/60"
+                  : "border-gray-100 bg-white hover:border-pink-200 hover:bg-pink-50/60 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
               }`}
             >
               <span
-                className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base font-bold transition-all duration-150 ${
+                className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-150 ${
                   isSel
-                    ? "bg-bucin-pink text-white scale-110 shadow-md"
-                    : "bg-pink-50 text-pink-400"
+                    ? "bg-bucin-pink text-white scale-110"
+                    : "bg-pink-50 text-pink-400 group-hover:bg-pink-100"
                 }`}
-                style={isSel ? { boxShadow: "0 2px 12px rgba(255,61,127,0.4)" } : {}}
+                style={isSel ? { boxShadow: "0 2px 14px rgba(255,61,127,0.45)" } : {}}
               >
                 {isSel ? "✓" : emoji}
               </span>
