@@ -403,10 +403,16 @@ function HasilScreen({ hasil }: { hasil: HasilData }) {
           : "MAYDAY MAYDAY 🚨 Bucin level kritis terdeteksi!"}
         </p>
 
-        <h3 className="font-display font-extrabold mb-4 leading-tight uppercase tracking-tight"
-          style={{ fontSize: "clamp(1.4rem,6vw,2rem)", color: "#FF3D7F",
-            textShadow: "2px 3px 0 rgba(169,16,121,0.25), 0 0 20px rgba(255,61,127,0.12)",
-            transform: "rotate(-1deg)", display: "inline-block" }}>
+        <h3 className="font-display font-extrabold mb-4 leading-tight block"
+          style={{
+            fontSize: "clamp(1.5rem, 5.5vw, 2.2rem)",
+            background: "linear-gradient(135deg, #FF6B9D 0%, #FF3D7F 50%, #B5004A 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            letterSpacing: "0.03em",
+            filter: "drop-shadow(0 2px 6px rgba(194,24,91,0.25))",
+          }}>
           {hasil.golongan.nama}
         </h3>
 
