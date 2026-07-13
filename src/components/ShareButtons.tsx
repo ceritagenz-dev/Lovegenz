@@ -97,170 +97,162 @@ async function generateShareImage(
   try { await document.fonts.load("bold 72px Poppins"); } catch {}
 
   const canvas = document.createElement("canvas");
-  const S = 1080;
-  canvas.width = S;
-  canvas.height = S;
+  const W = 1080, H = 1350; // portrait 4:5 — ideal buat IG Story & Feed
+  canvas.width = W;
+  canvas.height = H;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
+  const CX = W / 2;
 
-  // Gradient bg
-  const grad = ctx.createLinearGradient(0, 0, S, S);
-  grad.addColorStop(0, "#E0115F");
-  grad.addColorStop(0.5, "#A91079");
-  grad.addColorStop(1, "#C2185B");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, S, S);
+  // ── Dark romantic background ─────────────────────────────────────────────
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0,   "#7a003d");
+  bg.addColorStop(0.3, "#b5004a");
+  bg.addColorStop(0.6, "#8b0057");
+  bg.addColorStop(1,   "#1a0018");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
 
-  // Dot pattern
-  ctx.fillStyle = "rgba(255,255,255,0.07)";
-  for (let dx = 30; dx < S; dx += 55) {
-    for (let dy = 30; dy < S; dy += 55) {
-      ctx.beginPath();
-      ctx.arc(dx, dy, 2.5, 0, Math.PI * 2);
-      ctx.fill();
+  // Radial glow top-left
+  const gl1 = ctx.createRadialGradient(200, 180, 0, 200, 180, 520);
+  gl1.addColorStop(0, "rgba(255,61,127,0.35)");
+  gl1.addColorStop(1, "rgba(255,61,127,0)");
+  ctx.fillStyle = gl1; ctx.fillRect(0, 0, W, H);
+
+  // Radial glow bottom-right
+  const gl2 = ctx.createRadialGradient(920, 1220, 0, 920, 1220, 420);
+  gl2.addColorStop(0, "rgba(60,0,50,0.65)");
+  gl2.addColorStop(1, "rgba(60,0,50,0)");
+  ctx.fillStyle = gl2; ctx.fillRect(0, 0, W, H);
+
+  // Dot texture
+  ctx.fillStyle = "rgba(255,255,255,0.04)";
+  for (let dx = 25; dx < W; dx += 52) {
+    for (let dy = 25; dy < H; dy += 52) {
+      ctx.beginPath(); ctx.arc(dx, dy, 2, 0, Math.PI * 2); ctx.fill();
     }
   }
 
-  // Floating heart elements (scattered)
-  const heartEmojis = ["💗", "💕", "✨", "💓", "💖"];
-  ctx.font = "36px sans-serif";
-  ctx.globalAlpha = 0.12;
-  const heartPos = [
-    [80, 120], [980, 200], [120, 900], [960, 850],
-    [200, 500], [900, 480], [500, 60], [550, 1010],
-    [320, 220], [780, 750],
-  ];
-  heartPos.forEach(([hx, hy], i) => {
-    ctx.fillText(heartEmojis[i % heartEmojis.length], hx, hy);
-  });
+  // Decorative circles
+  ctx.fillStyle = "rgba(255,255,255,0.06)";
+  ctx.beginPath(); ctx.arc(W * 0.88, H * 0.07, 270, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(W * 0.1,  H * 0.93, 200, 0, Math.PI * 2); ctx.fill();
+
+  // Scattered hearts
+  const hE = ["\u{1F497}","\u{1F495}","\u{1F493}","\u2728","\u{1F496}","\u{1F338}"];
+  const hP = [[60,90],[1000,160],[80,680],[1000,900],[60,1250],[1010,1150],[540,40],[530,1300],[240,400],[830,380],[280,1050],[800,1020]];
+  ctx.font = "32px sans-serif"; ctx.globalAlpha = 0.13;
+  hP.forEach(([hx,hy],i) => ctx.fillText(hE[i%hE.length], hx, hy));
   ctx.globalAlpha = 1;
 
-  // Deco circles
-  ctx.fillStyle = "rgba(255,255,255,0.08)";
-  ctx.beginPath(); ctx.arc(S * 0.85, S * 0.1, 220, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(S * 0.1, S * 0.9, 170, 0, Math.PI * 2); ctx.fill();
-
-  // White card with glow
-  const CM = 70, CW = S - CM * 2, CH = S - CM * 2, RD = 48;
-  ctx.shadowColor = "rgba(194,24,91,0.4)";
-  ctx.shadowBlur = 40;
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.moveTo(CM + RD, CM);
-  ctx.lineTo(CM + CW - RD, CM);
-  ctx.quadraticCurveTo(CM + CW, CM, CM + CW, CM + RD);
-  ctx.lineTo(CM + CW, CM + CH - RD);
-  ctx.quadraticCurveTo(CM + CW, CM + CH, CM + CW - RD, CM + CH);
-  ctx.lineTo(CM + RD, CM + CH);
-  ctx.quadraticCurveTo(CM, CM + CH, CM, CM + CH - RD);
-  ctx.lineTo(CM, CM + RD);
-  ctx.quadraticCurveTo(CM, CM, CM + RD, CM);
-  ctx.closePath();
-  ctx.fill();
-  ctx.shadowBlur = 0;
-
-  const CX = S / 2;
   ctx.textAlign = "center";
 
-  // Branding badge — dengan glow effect
-  const pillW = 320, pillH = 48, pillX = CX - pillW / 2, pillY = CM + 24;
-  const pillGrad = ctx.createLinearGradient(pillX, 0, pillX + pillW, 0);
-  pillGrad.addColorStop(0, "rgba(255,61,127,0.18)");
-  pillGrad.addColorStop(1, "rgba(169,16,121,0.18)");
-  ctx.fillStyle = pillGrad;
-  ctx.shadowColor = "rgba(255,61,127,0.3)";
-  ctx.shadowBlur = 12;
-  ctx.beginPath();
-  ctx.roundRect(pillX, pillY, pillW, pillH, 24);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "rgba(194,24,91,0.7)";
-  ctx.font = "700 22px Poppins, sans-serif";
-  ctx.fillText("✨  KUIS BUCIN 2026  ✨", CX, CM + 54);
+  // ── TOP badge ─────────────────────────────────────────────────────────────
+  const bY=90, bW=360, bH=54;
+  const bG = ctx.createLinearGradient(CX-bW/2, 0, CX+bW/2, 0);
+  bG.addColorStop(0, "rgba(255,209,102,0.25)"); bG.addColorStop(1, "rgba(255,61,127,0.25)");
+  ctx.fillStyle = bG;
+  ctx.beginPath(); ctx.roundRect(CX-bW/2, bY, bW, bH, 27); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(CX-bW/2, bY, bW, bH, 27); ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.88)";
+  ctx.font = "600 21px Poppins, sans-serif";
+  ctx.fillText("\u{1F498}  KUIS BUCIN 2026  \u{1F498}", CX, bY + 34);
 
-  // Heart
-  ctx.font = "80px sans-serif";
-  ctx.fillText("💓", CX, CM + 155);
-
-  // Nama — dengan text shadow
-  ctx.shadowColor = "rgba(194,24,91,0.2)";
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetY = 3;
-  ctx.fillStyle = "#C2185B";
-  const namaDisplay = nama.length > 18 ? nama.slice(0, 16) + "…" : nama;
-  ctx.font = "bold 60px Poppins, sans-serif";
-  ctx.fillText(namaDisplay, CX, CM + 245);
+  // ── NAMA ─────────────────────────────────────────────────────────────────
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.shadowColor = "rgba(255,61,127,0.55)"; ctx.shadowBlur = 22;
+  ctx.font = "bold 58px Poppins, sans-serif";
+  ctx.fillText(nama.length > 18 ? nama.slice(0,16)+"\u2026" : nama, CX, 225);
   ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
+  ctx.fillStyle = "rgba(255,255,255,0.42)";
+  ctx.font = "400 23px Poppins, sans-serif";
+  ctx.fillText("hasil kuis bucin", CX, 263);
 
   // Divider
-  ctx.strokeStyle = "rgba(194,24,91,0.15)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(CM + 80, CM + 272); ctx.lineTo(CM + CW - 80, CM + 272);
-  ctx.stroke();
+  const dG = ctx.createLinearGradient(80, 0, W-80, 0);
+  dG.addColorStop(0,"rgba(255,255,255,0)"); dG.addColorStop(0.5,"rgba(255,255,255,0.22)"); dG.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.strokeStyle = dG; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(100,295); ctx.lineTo(W-100,295); ctx.stroke();
 
-  // Golongan — zona FIXED 300-430, max 2 baris, font auto-shrink
-  ctx.fillStyle = "#FF3D7F";
-  const golFontSize = golonganNama.length > 22 ? 38 : golonganNama.length > 16 ? 44 : 50;
-  ctx.font = `bold ${golFontSize}px Poppins, sans-serif`;
-  const maxGolW = CW - 100;
-  const words = golonganNama.split(" ");
-  let line1 = "", line2 = "";
-  for (let i = 0; i < words.length; i++) {
-    const test = line1 + (line1 ? " " : "") + words[i];
-    if (ctx.measureText(test).width > maxGolW && line1) {
-      let rest = words.slice(i).join(" ");
-      while (ctx.measureText(rest).width > maxGolW && rest.length > 2) {
-        rest = rest.slice(0, -2) + "…";
-      }
-      line2 = rest;
-      break;
-    }
-    line1 = test;
+  // ── PERCENTAGE — hero ─────────────────────────────────────────────────────
+  const pG = ctx.createRadialGradient(CX, 490, 10, CX, 490, 280);
+  pG.addColorStop(0, "rgba(255,61,127,0.28)"); pG.addColorStop(1, "rgba(255,61,127,0)");
+  ctx.fillStyle = pG; ctx.fillRect(0, 250, W, 600);
+
+  ctx.font = "900 220px Poppins, sans-serif";
+  ctx.shadowColor = "rgba(255,61,127,0.65)"; ctx.shadowBlur = 45; ctx.shadowOffsetY = 8;
+  const numG = ctx.createLinearGradient(CX-200, 310, CX+200, 560);
+  numG.addColorStop(0,"#ffffff"); numG.addColorStop(0.5,"#FFD4E8"); numG.addColorStop(1,"#FF6B9D");
+  ctx.fillStyle = numG;
+  ctx.fillText(percentage+"%", CX, 530);
+  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "500 30px Poppins, sans-serif";
+  ctx.fillText("tingkat kebucinan", CX, 580);
+
+  // ── GOLONGAN glass card ───────────────────────────────────────────────────
+  const cY=660, cH=270, cW=W-80, cX=40, cR=36;
+  ctx.fillStyle = "rgba(255,255,255,0.1)";
+  ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cX+cR,cY); ctx.lineTo(cX+cW-cR,cY); ctx.quadraticCurveTo(cX+cW,cY,cX+cW,cY+cR);
+  ctx.lineTo(cX+cW,cY+cH-cR); ctx.quadraticCurveTo(cX+cW,cY+cH,cX+cW-cR,cY+cH);
+  ctx.lineTo(cX+cR,cY+cH); ctx.quadraticCurveTo(cX,cY+cH,cX,cY+cH-cR);
+  ctx.lineTo(cX,cY+cR); ctx.quadraticCurveTo(cX,cY,cX+cR,cY); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // Gold accent line
+  const aG = ctx.createLinearGradient(cX+cR,0,cX+cW-cR,0);
+  aG.addColorStop(0,"rgba(255,209,102,0)"); aG.addColorStop(0.5,"rgba(255,209,102,0.9)"); aG.addColorStop(1,"rgba(255,209,102,0)");
+  ctx.fillStyle = aG; ctx.fillRect(cX+cR, cY, cW-cR*2, 3);
+
+  ctx.fillStyle = "rgba(255,209,102,0.8)";
+  ctx.font = "600 19px Poppins, sans-serif";
+  ctx.fillText("GOLONGAN " + percentage + "% BUCIN", CX, cY+46);
+
+  // Golongan name
+  const gFs = golonganNama.length > 22 ? 42 : golonganNama.length > 16 ? 48 : 54;
+  ctx.font = "bold " + gFs + "px Poppins, sans-serif";
+  const mW = cW - 80, ws = golonganNama.split(" ");
+  let l1="", l2="";
+  for (let i=0;i<ws.length;i++) {
+    const t = l1+(l1?" ":"")+ws[i];
+    if (ctx.measureText(t).width > mW && l1) { l2=ws.slice(i).join(" "); break; }
+    l1=t;
   }
-  const golY = CM + 340;
-  const lineH = golFontSize * 1.3;
-  ctx.fillText(line1, CX, golY);
-  if (line2) ctx.fillText(line2, CX, golY + lineH);
-
-  // Percentage — text shadow untuk efek timbul
-  ctx.shadowColor = "rgba(194,24,91,0.25)";
-  ctx.shadowBlur = 16;
-  ctx.shadowOffsetY = 4;
-  ctx.fillStyle = "#C2185B";
-  ctx.font = "bold 148px Poppins, sans-serif";
-  ctx.fillText(`${percentage}%`, CX, CM + 610);
+  const lH = gFs*1.25, gY2 = cY+105+(l2?0:lH/2);
+  ctx.shadowColor = "rgba(255,61,127,0.35)"; ctx.shadowBlur = 14;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(l1, CX, gY2);
+  if (l2) { if (ctx.measureText(l2).width>mW) l2=l2.slice(0,-2)+"\u2026"; ctx.fillText(l2, CX, gY2+lH); }
   ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
 
-  // Label tingkat kebucinan
-  ctx.fillStyle = "rgba(194,24,91,0.5)";
-  ctx.font = "500 33px Poppins, sans-serif";
-  ctx.fillText("tingkat kebucinan", CX, CM + 662);
+  // ── CTA & URL ─────────────────────────────────────────────────────────────
+  ctx.fillStyle = "rgba(255,255,255,0.48)";
+  ctx.font = "400 22px Poppins, sans-serif";
+  ctx.fillText("Cek golongan kebucinan lo juga \u2192", CX, 1010);
 
-  // URL pill — di dalam kartu
-  const urlShort = url.replace("https://", "");
+  const uT = url.replace("https://","");
   ctx.font = "bold 26px Poppins, sans-serif";
-  const urlMeasure = ctx.measureText(urlShort).width;
-  const urlPillW = urlMeasure + 60;
-  const urlPillH = 48;
-  const urlPillX = CX - urlPillW / 2;
-  const urlPillY = CM + CH - 100;
-  ctx.fillStyle = "rgba(194,24,91,0.1)";
-  ctx.beginPath();
-  ctx.roundRect(urlPillX, urlPillY, urlPillW, urlPillH, 24);
-  ctx.fill();
-  ctx.fillStyle = "#C2185B";
-  ctx.fillText(urlShort, CX, urlPillY + 32);
+  const uW = ctx.measureText(uT).width+64;
+  const uY = 1050;
+  const uG = ctx.createLinearGradient(CX-uW/2,0,CX+uW/2,0);
+  uG.addColorStop(0,"rgba(255,209,102,0.3)"); uG.addColorStop(1,"rgba(255,61,127,0.3)");
+  ctx.fillStyle = uG;
+  ctx.beginPath(); ctx.roundRect(CX-uW/2,uY,uW,50,25); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(CX-uW/2,uY,uW,50,25); ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.fillText(uT, CX, uY+32);
 
-  // @ceritagenz — di dalam card, di bawah URL, dengan padding
-  ctx.fillStyle = "rgba(194,24,91,0.4)";
-  ctx.font = "500 22px Poppins, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("@ceritagenz", CX, CM + CH - 30);
+  // @ceritagenz
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.font = "500 20px Poppins, sans-serif";
+  ctx.fillText("@ceritagenz", CX, H - 38);
 
-  return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
+  return new Promise(res => canvas.toBlob(b => res(b), "image/png"));
 }
 
 export default function ShareButtons({ nama, golonganNama, percentage }: Props) {
