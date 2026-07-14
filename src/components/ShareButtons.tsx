@@ -95,162 +95,175 @@ async function generateShareImage(
   url: string
 ): Promise<Blob | null> {
   try { await document.fonts.load("bold 72px Poppins"); } catch {}
-
   const canvas = document.createElement("canvas");
-  const W = 1080, H = 1350; // portrait 4:5 — ideal buat IG Story & Feed
-  canvas.width = W;
-  canvas.height = H;
+  const W = 1080, H = 1350;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   const CX = W / 2;
 
-  // ── Dark romantic background ─────────────────────────────────────────────
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0,   "#7a003d");
-  bg.addColorStop(0.3, "#b5004a");
-  bg.addColorStop(0.6, "#8b0057");
-  bg.addColorStop(1,   "#1a0018");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
+  // ── BACKGROUND ───────────────────────────────────────────────────────────
+  // Top 65%: dark gradient
+  const bgTop = ctx.createLinearGradient(0, 0, W, H * 0.65);
+  bgTop.addColorStop(0, "#6b002e");
+  bgTop.addColorStop(0.5, "#9e0050");
+  bgTop.addColorStop(1, "#7a0055");
+  ctx.fillStyle = bgTop;
+  ctx.fillRect(0, 0, W, H * 0.65);
+
+  // Bottom 35%: bright hot pink — stark contrast block
+  const bgBot = ctx.createLinearGradient(0, H * 0.65, 0, H);
+  bgBot.addColorStop(0, "#d6006a");
+  bgBot.addColorStop(1, "#a8004f");
+  ctx.fillStyle = bgBot;
+  ctx.fillRect(0, H * 0.65, W, H * 0.35);
+
+  // Divider glow line
+  const lineGrad = ctx.createLinearGradient(0, 0, W, 0);
+  lineGrad.addColorStop(0, "rgba(255,255,255,0)");
+  lineGrad.addColorStop(0.5, "rgba(255,255,255,0.4)");
+  lineGrad.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = lineGrad;
+  ctx.fillRect(0, H * 0.65 - 2, W, 4);
 
   // Radial glow top-left
-  const gl1 = ctx.createRadialGradient(200, 180, 0, 200, 180, 520);
-  gl1.addColorStop(0, "rgba(255,61,127,0.35)");
-  gl1.addColorStop(1, "rgba(255,61,127,0)");
-  ctx.fillStyle = gl1; ctx.fillRect(0, 0, W, H);
+  const r1 = ctx.createRadialGradient(150, 150, 0, 150, 150, 450);
+  r1.addColorStop(0, "rgba(255,61,127,0.4)"); r1.addColorStop(1, "rgba(255,61,127,0)");
+  ctx.fillStyle = r1; ctx.fillRect(0, 0, W, H * 0.65);
 
-  // Radial glow bottom-right
-  const gl2 = ctx.createRadialGradient(920, 1220, 0, 920, 1220, 420);
-  gl2.addColorStop(0, "rgba(60,0,50,0.65)");
-  gl2.addColorStop(1, "rgba(60,0,50,0)");
-  ctx.fillStyle = gl2; ctx.fillRect(0, 0, W, H);
+  // Radial glow center
+  const r2 = ctx.createRadialGradient(CX, 500, 0, CX, 500, 360);
+  r2.addColorStop(0, "rgba(180,0,80,0.35)"); r2.addColorStop(1, "rgba(180,0,80,0)");
+  ctx.fillStyle = r2; ctx.fillRect(0, 200, W, 600);
 
-  // Dot texture
-  ctx.fillStyle = "rgba(255,255,255,0.04)";
-  for (let dx = 25; dx < W; dx += 52) {
-    for (let dy = 25; dy < H; dy += 52) {
-      ctx.beginPath(); ctx.arc(dx, dy, 2, 0, Math.PI * 2); ctx.fill();
-    }
+  // Dot grid texture
+  ctx.fillStyle = "rgba(255,255,255,0.035)";
+  for (let x = 30; x < W; x += 54) for (let y = 30; y < H * 0.65; y += 54) {
+    ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fill();
   }
 
-  // Decorative circles
-  ctx.fillStyle = "rgba(255,255,255,0.06)";
-  ctx.beginPath(); ctx.arc(W * 0.88, H * 0.07, 270, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(W * 0.1,  H * 0.93, 200, 0, Math.PI * 2); ctx.fill();
+  // Large decorative heart outline in background
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 28;
+  ctx.beginPath();
+  const hx = CX, hy = 340, hs = 420;
+  ctx.moveTo(hx, hy + hs * 0.3);
+  ctx.bezierCurveTo(hx, hy, hx - hs * 0.6, hy, hx - hs * 0.6, hy + hs * 0.3);
+  ctx.bezierCurveTo(hx - hs * 0.6, hy + hs * 0.7, hx, hy + hs, hx, hy + hs);
+  ctx.bezierCurveTo(hx, hy + hs, hx + hs * 0.6, hy + hs * 0.7, hx + hs * 0.6, hy + hs * 0.3);
+  ctx.bezierCurveTo(hx + hs * 0.6, hy, hx, hy, hx, hy + hs * 0.3);
+  ctx.stroke();
+  ctx.restore();
 
-  // Scattered hearts
-  const hE = ["\u{1F497}","\u{1F495}","\u{1F493}","\u2728","\u{1F496}","\u{1F338}"];
-  const hP = [[60,90],[1000,160],[80,680],[1000,900],[60,1250],[1010,1150],[540,40],[530,1300],[240,400],[830,380],[280,1050],[800,1020]];
-  ctx.font = "32px sans-serif"; ctx.globalAlpha = 0.13;
-  hP.forEach(([hx,hy],i) => ctx.fillText(hE[i%hE.length], hx, hy));
-  ctx.globalAlpha = 1;
+  // Corner sparkles
+  const sparkPos = [[80,80],[W-80,80],[60,620],[W-60,620],[130,350],[W-130,350]];
+  sparkPos.forEach(([sx,sy]) => {
+    ctx.fillStyle = "rgba(255,209,102,0.5)";
+    ctx.font = "24px sans-serif";
+    ctx.fillText("✦", sx-8, sy+8);
+  });
 
   ctx.textAlign = "center";
 
-  // ── TOP badge ─────────────────────────────────────────────────────────────
-  const bY=90, bW=360, bH=54;
-  const bG = ctx.createLinearGradient(CX-bW/2, 0, CX+bW/2, 0);
-  bG.addColorStop(0, "rgba(255,209,102,0.25)"); bG.addColorStop(1, "rgba(255,61,127,0.25)");
-  ctx.fillStyle = bG;
-  ctx.beginPath(); ctx.roundRect(CX-bW/2, bY, bW, bH, 27); ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.roundRect(CX-bW/2, bY, bW, bH, 27); ctx.stroke();
-  ctx.fillStyle = "rgba(255,255,255,0.88)";
-  ctx.font = "600 21px Poppins, sans-serif";
-  ctx.fillText("\u{1F498}  KUIS BUCIN 2026  \u{1F498}", CX, bY + 34);
+  // ── APP BADGE ─────────────────────────────────────────────────────────────
+  const bW=300, bH=46, bX=CX-bW/2, bY=70;
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.roundRect(bX,bY,bW,bH,23); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.font = "500 18px Poppins, sans-serif";
+  ctx.fillText("KUIS BUCIN 2026", CX, bY+29);
 
   // ── NAMA ─────────────────────────────────────────────────────────────────
-  ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.shadowColor = "rgba(255,61,127,0.55)"; ctx.shadowBlur = 22;
-  ctx.font = "bold 58px Poppins, sans-serif";
-  ctx.fillText(nama.length > 18 ? nama.slice(0,16)+"\u2026" : nama, CX, 225);
+  const namaDisplay = nama.length > 16 ? nama.slice(0,14)+"\u2026" : nama;
+  ctx.font = "900 80px Poppins, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(255,61,127,0.7)"; ctx.shadowBlur = 28;
+  ctx.fillText(namaDisplay, CX, 230);
   ctx.shadowBlur = 0;
-  ctx.fillStyle = "rgba(255,255,255,0.42)";
-  ctx.font = "400 23px Poppins, sans-serif";
-  ctx.fillText("hasil kuis bucin", CX, 263);
 
-  // Divider
-  const dG = ctx.createLinearGradient(80, 0, W-80, 0);
-  dG.addColorStop(0,"rgba(255,255,255,0)"); dG.addColorStop(0.5,"rgba(255,255,255,0.22)"); dG.addColorStop(1,"rgba(255,255,255,0)");
-  ctx.strokeStyle = dG; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(100,295); ctx.lineTo(W-100,295); ctx.stroke();
+  // Small underline accent
+  const nW = Math.min(ctx.measureText(namaDisplay).width + 40, 600);
+  const uGrad = ctx.createLinearGradient(CX-nW/2, 0, CX+nW/2, 0);
+  uGrad.addColorStop(0,"rgba(255,209,102,0)");
+  uGrad.addColorStop(0.5,"rgba(255,209,102,0.9)");
+  uGrad.addColorStop(1,"rgba(255,209,102,0)");
+  ctx.fillStyle = uGrad; ctx.fillRect(CX-nW/2, 248, nW, 4);
 
-  // ── PERCENTAGE — hero ─────────────────────────────────────────────────────
-  const pG = ctx.createRadialGradient(CX, 490, 10, CX, 490, 280);
-  pG.addColorStop(0, "rgba(255,61,127,0.28)"); pG.addColorStop(1, "rgba(255,61,127,0)");
-  ctx.fillStyle = pG; ctx.fillRect(0, 250, W, 600);
+  // ── PERCENTAGE — HERO ─────────────────────────────────────────────────────
+  // Circular ring track
+  const rCX=CX, rCY=490, rR=230, rLW=14;
+  ctx.beginPath(); ctx.arc(rCX, rCY, rR, 0, Math.PI*2);
+  ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth=rLW; ctx.stroke();
+  // Arc fill
+  const arcStart = -Math.PI/2;
+  const arcEnd = arcStart + (percentage/100) * Math.PI*2;
+  const arcG = ctx.createLinearGradient(rCX-rR, rCY-rR, rCX+rR, rCY+rR);
+  arcG.addColorStop(0, "#FFD166"); arcG.addColorStop(0.5, "#FF6B9D"); arcG.addColorStop(1, "#FF3D7F");
+  ctx.beginPath(); ctx.arc(rCX, rCY, rR, arcStart, arcEnd);
+  ctx.strokeStyle = arcG; ctx.lineWidth = rLW; ctx.lineCap="round"; ctx.stroke();
+  // End dot glow
+  const dotX = rCX + rR * Math.cos(arcEnd), dotY = rCY + rR * Math.sin(arcEnd);
+  ctx.beginPath(); ctx.arc(dotX, dotY, rLW*0.8, 0, Math.PI*2);
+  ctx.fillStyle = "#FFD166"; ctx.fill();
 
-  ctx.font = "900 220px Poppins, sans-serif";
-  ctx.shadowColor = "rgba(255,61,127,0.65)"; ctx.shadowBlur = 45; ctx.shadowOffsetY = 8;
-  const numG = ctx.createLinearGradient(CX-200, 310, CX+200, 560);
-  numG.addColorStop(0,"#ffffff"); numG.addColorStop(0.5,"#FFD4E8"); numG.addColorStop(1,"#FF6B9D");
-  ctx.fillStyle = numG;
-  ctx.fillText(percentage+"%", CX, 530);
-  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  // Percentage number inside ring
+  ctx.shadowColor = "rgba(255,61,127,0.5)"; ctx.shadowBlur = 30;
+  const pctG = ctx.createLinearGradient(CX, rCY-120, CX, rCY+60);
+  pctG.addColorStop(0,"#ffffff"); pctG.addColorStop(1,"#FFB4CC");
+  ctx.fillStyle = pctG;
+  ctx.font = "900 150px Poppins, sans-serif";
+  ctx.fillText(percentage+"%", CX, rCY+50);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "400 24px Poppins, sans-serif";
+  ctx.fillText("tingkat kebucinan", CX, rCY+95);
 
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "500 30px Poppins, sans-serif";
-  ctx.fillText("tingkat kebucinan", CX, 580);
+  // ── GOLONGAN — bright bottom block ───────────────────────────────────────
+  const golY = H * 0.65 + 30;
 
-  // ── GOLONGAN glass card ───────────────────────────────────────────────────
-  const cY=660, cH=270, cW=W-80, cX=40, cR=36;
-  ctx.fillStyle = "rgba(255,255,255,0.1)";
-  ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(cX+cR,cY); ctx.lineTo(cX+cW-cR,cY); ctx.quadraticCurveTo(cX+cW,cY,cX+cW,cY+cR);
-  ctx.lineTo(cX+cW,cY+cH-cR); ctx.quadraticCurveTo(cX+cW,cY+cH,cX+cW-cR,cY+cH);
-  ctx.lineTo(cX+cR,cY+cH); ctx.quadraticCurveTo(cX,cY+cH,cX,cY+cH-cR);
-  ctx.lineTo(cX,cY+cR); ctx.quadraticCurveTo(cX,cY,cX+cR,cY); ctx.closePath();
-  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.font = "700 18px Poppins, sans-serif";
+  ctx.letterSpacing = "3px";
+  ctx.fillText("GOLONGAN", CX, golY+20);
+  ctx.letterSpacing = "0px";
 
-  // Gold accent line
-  const aG = ctx.createLinearGradient(cX+cR,0,cX+cW-cR,0);
-  aG.addColorStop(0,"rgba(255,209,102,0)"); aG.addColorStop(0.5,"rgba(255,209,102,0.9)"); aG.addColorStop(1,"rgba(255,209,102,0)");
-  ctx.fillStyle = aG; ctx.fillRect(cX+cR, cY, cW-cR*2, 3);
-
-  ctx.fillStyle = "rgba(255,209,102,0.8)";
-  ctx.font = "600 19px Poppins, sans-serif";
-  ctx.fillText("GOLONGAN " + percentage + "% BUCIN", CX, cY+46);
-
-  // Golongan name
-  const gFs = golonganNama.length > 22 ? 42 : golonganNama.length > 16 ? 48 : 54;
-  ctx.font = "bold " + gFs + "px Poppins, sans-serif";
-  const mW = cW - 80, ws = golonganNama.split(" ");
+  const gFs = golonganNama.length > 20 ? 48 : golonganNama.length > 14 ? 56 : 64;
+  ctx.font = "900 " + gFs + "px Poppins, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(0,0,0,0.2)"; ctx.shadowBlur = 12;
+  const mW = W - 100, ws = golonganNama.split(" ");
   let l1="", l2="";
-  for (let i=0;i<ws.length;i++) {
-    const t = l1+(l1?" ":"")+ws[i];
-    if (ctx.measureText(t).width > mW && l1) { l2=ws.slice(i).join(" "); break; }
+  for (let i=0;i<ws.length;i++){
+    const t=l1+(l1?" ":"")+ws[i];
+    if(ctx.measureText(t).width>mW&&l1){l2=ws.slice(i).join(" ");break;}
     l1=t;
   }
-  const lH = gFs*1.25, gY2 = cY+105+(l2?0:lH/2);
-  ctx.shadowColor = "rgba(255,61,127,0.35)"; ctx.shadowBlur = 14;
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(l1, CX, gY2);
-  if (l2) { if (ctx.measureText(l2).width>mW) l2=l2.slice(0,-2)+"\u2026"; ctx.fillText(l2, CX, gY2+lH); }
-  ctx.shadowBlur = 0;
+  const lH=gFs*1.2, gTextY=golY+50+(l2?0:lH/2);
+  ctx.fillText(l1, CX, gTextY);
+  if(l2){if(ctx.measureText(l2).width>mW)l2=l2.slice(0,-2)+"\u2026";ctx.fillText(l2,CX,gTextY+lH);}
+  ctx.shadowBlur=0;
 
-  // ── CTA & URL ─────────────────────────────────────────────────────────────
-  ctx.fillStyle = "rgba(255,255,255,0.48)";
-  ctx.font = "400 22px Poppins, sans-serif";
-  ctx.fillText("Cek golongan kebucinan lo juga \u2192", CX, 1010);
+  // Small tagline
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "400 20px Poppins, sans-serif";
+  ctx.fillText("Tes lo di:", CX, golY+210);
 
+  // URL pill on bottom block
   const uT = url.replace("https://","");
-  ctx.font = "bold 26px Poppins, sans-serif";
-  const uW = ctx.measureText(uT).width+64;
-  const uY = 1050;
-  const uG = ctx.createLinearGradient(CX-uW/2,0,CX+uW/2,0);
-  uG.addColorStop(0,"rgba(255,209,102,0.3)"); uG.addColorStop(1,"rgba(255,61,127,0.3)");
-  ctx.fillStyle = uG;
-  ctx.beginPath(); ctx.roundRect(CX-uW/2,uY,uW,50,25); ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.roundRect(CX-uW/2,uY,uW,50,25); ctx.stroke();
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.fillText(uT, CX, uY+32);
+  ctx.font = "700 24px Poppins, sans-serif";
+  const uW = ctx.measureText(uT).width + 60, uY = golY+230;
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.beginPath(); ctx.roundRect(CX-uW/2,uY,uW,48,24); ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(uT, CX, uY+30);
 
   // @ceritagenz
-  ctx.fillStyle = "rgba(255,255,255,0.28)";
-  ctx.font = "500 20px Poppins, sans-serif";
-  ctx.fillText("@ceritagenz", CX, H - 38);
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.font = "400 18px Poppins, sans-serif";
+  ctx.fillText("@ceritagenz", CX, H-30);
 
   return new Promise(res => canvas.toBlob(b => res(b), "image/png"));
 }
