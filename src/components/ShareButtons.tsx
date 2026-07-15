@@ -102,7 +102,7 @@ async function generateShareImage(
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   const CX = W / 2;
-  const emoji = GOLONGAN_EMOJI[golonganNama] ?? "💘";
+  const emoji = (GOLONGAN_EMOJI[golonganNama] ?? "💘").replace(/\uFE0F/g, "");
 
   // ── OUTER CARD FRAME (rounded, so it reads as a premium sticker) ─────────
   const FR = 44; // frame radius
@@ -251,9 +251,12 @@ async function generateShareImage(
   ctx.font = "900 140px Poppins, sans-serif";
   ctx.fillText(percentage + "%", CX, rCY + 46);
   ctx.restore();
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "500 24px Poppins, sans-serif";
-  ctx.fillText("tingkat kebucinan", CX, rCY + 88);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.35)"; ctx.shadowBlur = 8;
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.font = "700 26px Poppins, sans-serif";
+  ctx.fillText("tingkat kebucinan", CX, rCY + 90);
+  ctx.restore();
 
   // ── GOLONGAN — floating rounded card lifted off the background ──────────
   const cardM = 44, cardY = 900, cardH = H - cardY - 40, cardR = 40;
@@ -274,9 +277,9 @@ async function generateShareImage(
   ctx.restore();
 
   const innerCX = CX;
-  ctx.fillStyle = "rgba(255,255,255,0.7)";
-  ctx.font = "700 17px Poppins, sans-serif";
-  ctx.fillText("G  O  L  O  N  G  A  N", innerCX, cardY + 46);
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.font = "800 22px Poppins, sans-serif";
+  ctx.fillText("G   O   L   O   N   G   A   N", innerCX, cardY + 48);
 
   // Big emoji badge
   ctx.font = "56px sans-serif";
@@ -299,15 +302,15 @@ async function generateShareImage(
   ctx.shadowBlur = 0;
 
   // Tagline + URL pill anchored to bottom of card
-  const tagY = cardY + cardH - 112;
-  ctx.fillStyle = "rgba(255,255,255,0.6)";
-  ctx.font = "500 19px Poppins, sans-serif";
+  const tagY = cardY + cardH - 118;
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.font = "700 24px Poppins, sans-serif";
   ctx.fillText("Tes lo di:", innerCX, tagY);
 
   const uT = url.replace("https://", "").replace(/\/$/, "");
   ctx.font = "800 25px Poppins, sans-serif";
   const uPillLabel = uT + "  →";
-  const uW = ctx.measureText(uPillLabel).width + 56, uY = tagY + 18;
+  const uW = ctx.measureText(uPillLabel).width + 56, uY = tagY + 24;
   const pillG = ctx.createLinearGradient(innerCX - uW / 2, 0, innerCX + uW / 2, 0);
   pillG.addColorStop(0, "#FFD166"); pillG.addColorStop(1, "#FFBC1F");
   ctx.save();
