@@ -183,32 +183,30 @@ async function generateShareImage(
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.fillText(badgeLabel, CX, bY + 31);
 
-  // ── AVATAR BUBBLE (initial) ──────────────────────────────────────────────
-  const initial = (nama.trim()[0] || "?").toUpperCase();
-  const avCX = CX, avCY = 202, avR = 58;
-  const avGrad = ctx.createLinearGradient(avCX - avR, avCY - avR, avCX + avR, avCY + avR);
-  avGrad.addColorStop(0, "#FFD166"); avGrad.addColorStop(1, "#FF3D7F");
+  // ── NAMA — premium hero text (no avatar bubble) ──────────────────────────
+  const namaDisplay = nama.length > 20 ? nama.slice(0, 18) + "\u2026" : nama;
+  const nameFs = namaDisplay.length > 14 ? 64 : namaDisplay.length > 9 ? 76 : 88;
+  ctx.font = `900 ${nameFs}px Poppins, sans-serif`;
+  const nameG = ctx.createLinearGradient(0, 170, 0, 170 + nameFs);
+  nameG.addColorStop(0, "#ffffff"); nameG.addColorStop(1, "#FFE3EC");
   ctx.save();
-  ctx.shadowColor = "rgba(255,61,127,0.6)"; ctx.shadowBlur = 30;
-  ctx.beginPath(); ctx.arc(avCX, avCY, avR + 4, 0, Math.PI * 2);
-  ctx.strokeStyle = avGrad; ctx.lineWidth = 4; ctx.stroke();
+  ctx.shadowColor = "rgba(255,61,127,0.75)"; ctx.shadowBlur = 32;
+  ctx.fillStyle = nameG;
+  const nameY = 170 + nameFs * 0.78;
+  ctx.fillText(namaDisplay, CX, nameY);
   ctx.restore();
-  ctx.beginPath(); ctx.arc(avCX, avCY, avR, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fill();
-  ctx.font = "800 56px Poppins, sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(initial, avCX, avCY + 20);
 
-  // ── NAMA ──────────────────────────────────────────────────────────────
-  const namaDisplay = nama.length > 18 ? nama.slice(0, 16) + "\u2026" : nama;
-  ctx.font = "800 44px Poppins, sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.shadowColor = "rgba(255,61,127,0.6)"; ctx.shadowBlur = 18;
-  ctx.fillText(namaDisplay, CX, 306);
-  ctx.shadowBlur = 0;
+  // Gold underline accent beneath the name
+  const nW = Math.min(ctx.measureText(namaDisplay).width + 50, 700);
+  const uGrad = ctx.createLinearGradient(CX - nW / 2, 0, CX + nW / 2, 0);
+  uGrad.addColorStop(0, "rgba(255,209,102,0)");
+  uGrad.addColorStop(0.5, "rgba(255,209,102,0.95)");
+  uGrad.addColorStop(1, "rgba(255,209,102,0)");
+  ctx.fillStyle = uGrad;
+  ctx.fillRect(CX - nW / 2, nameY + 22, nW, 4);
 
   // ── PERCENTAGE — HERO RING ────────────────────────────────────────────
-  const rCX = CX, rCY = 590, rR = 210, rLW = 20;
+  const rCX = CX, rCY = 560, rR = 205, rLW = 20;
 
   // Outer soft halo behind the ring
   blob(rCX, rCY, rR + 90, "rgba(255,107,157,ALPHA)", 0.35);
@@ -322,8 +320,8 @@ async function generateShareImage(
   ctx.fillText(uPillLabel, innerCX, uY + 34);
 
   // Footer handle — sits just inside the bottom of the card
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "500 18px Poppins, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "700 20px Poppins, sans-serif";
   ctx.fillText("@ceritagenz", innerCX, cardY + cardH - 22);
 
   ctx.restore(); // end outer clip
