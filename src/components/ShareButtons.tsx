@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { GOLONGAN_EMOJI } from "@/lib/golonganEmoji";
 
 type Props = {
   nama: string;
@@ -94,61 +95,58 @@ async function generateShareImage(
   percentage: number,
   url: string
 ): Promise<Blob | null> {
-  try { await document.fonts.load("bold 72px Poppins"); } catch {}
+  try { await document.fonts.load("900 80px Poppins"); await document.fonts.load("700 32px Poppins"); } catch {}
   const canvas = document.createElement("canvas");
   const W = 1080, H = 1350;
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   const CX = W / 2;
+  const emoji = GOLONGAN_EMOJI[golonganNama] ?? "💘";
 
-  // ── BACKGROUND ───────────────────────────────────────────────────────────
-  // Top 65%: dark gradient
-  const bgTop = ctx.createLinearGradient(0, 0, W, H * 0.65);
-  bgTop.addColorStop(0, "#6b002e");
-  bgTop.addColorStop(0.5, "#9e0050");
-  bgTop.addColorStop(1, "#7a0055");
-  ctx.fillStyle = bgTop;
-  ctx.fillRect(0, 0, W, H * 0.65);
+  // ── OUTER CARD FRAME (rounded, so it reads as a premium sticker) ─────────
+  const FR = 44; // frame radius
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(0, 0, W, H, FR); ctx.clip();
 
-  // Bottom 35%: bright hot pink — stark contrast block
-  const bgBot = ctx.createLinearGradient(0, H * 0.65, 0, H);
-  bgBot.addColorStop(0, "#d6006a");
-  bgBot.addColorStop(1, "#a8004f");
-  ctx.fillStyle = bgBot;
-  ctx.fillRect(0, H * 0.65, W, H * 0.35);
+  // ── BASE BACKGROUND — smooth diagonal wash, no hard seam ─────────────────
+  const base = ctx.createLinearGradient(0, 0, W * 0.35, H);
+  base.addColorStop(0, "#3d0022");
+  base.addColorStop(0.42, "#7a0048");
+  base.addColorStop(0.72, "#b8005f");
+  base.addColorStop(1, "#e0006e");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, W, H);
 
-  // Divider glow line
-  const lineGrad = ctx.createLinearGradient(0, 0, W, 0);
-  lineGrad.addColorStop(0, "rgba(255,255,255,0)");
-  lineGrad.addColorStop(0.5, "rgba(255,255,255,0.4)");
-  lineGrad.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = lineGrad;
-  ctx.fillRect(0, H * 0.65 - 2, W, 4);
+  // Soft blurred glow blobs for depth (real blur where supported)
+  const blob = (x: number, y: number, r: number, color: string, alpha: number) => {
+    ctx.save();
+    try { ctx.filter = `blur(${r * 0.35}px)`; } catch {}
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color.replace("ALPHA", String(alpha)));
+    g.addColorStop(1, color.replace("ALPHA", "0"));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  };
+  blob(120, 160, 380, "rgba(255,107,157,ALPHA)", 0.45);
+  blob(W - 100, 120, 320, "rgba(255,209,102,ALPHA)", 0.22);
+  blob(CX, 560, 460, "rgba(255,61,127,ALPHA)", 0.30);
+  blob(60, H - 260, 400, "rgba(216,0,110,ALPHA)", 0.4);
 
-  // Radial glow top-left
-  const r1 = ctx.createRadialGradient(150, 150, 0, 150, 150, 450);
-  r1.addColorStop(0, "rgba(255,61,127,0.4)"); r1.addColorStop(1, "rgba(255,61,127,0)");
-  ctx.fillStyle = r1; ctx.fillRect(0, 0, W, H * 0.65);
-
-  // Radial glow center
-  const r2 = ctx.createRadialGradient(CX, 500, 0, CX, 500, 360);
-  r2.addColorStop(0, "rgba(180,0,80,0.35)"); r2.addColorStop(1, "rgba(180,0,80,0)");
-  ctx.fillStyle = r2; ctx.fillRect(0, 200, W, 600);
-
-  // Dot grid texture
-  ctx.fillStyle = "rgba(255,255,255,0.035)";
-  for (let x = 30; x < W; x += 54) for (let y = 30; y < H * 0.65; y += 54) {
-    ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fill();
+  // Fine dot-grid texture over the whole card
+  ctx.fillStyle = "rgba(255,255,255,0.03)";
+  for (let x = 26; x < W; x += 52) for (let y = 26; y < H; y += 52) {
+    ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
   }
 
-  // Large decorative heart outline in background
+  // Large faint decorative heart outline behind the hero ring
   ctx.save();
-  ctx.globalAlpha = 0.06;
+  ctx.globalAlpha = 0.05;
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 28;
+  ctx.lineWidth = 26;
   ctx.beginPath();
-  const hx = CX, hy = 340, hs = 420;
+  const hx = CX, hy = 330, hs = 430;
   ctx.moveTo(hx, hy + hs * 0.3);
   ctx.bezierCurveTo(hx, hy, hx - hs * 0.6, hy, hx - hs * 0.6, hy + hs * 0.3);
   ctx.bezierCurveTo(hx - hs * 0.6, hy + hs * 0.7, hx, hy + hs, hx, hy + hs);
@@ -157,113 +155,182 @@ async function generateShareImage(
   ctx.stroke();
   ctx.restore();
 
-  // Corner sparkles
-  const sparkPos = [[80,80],[W-80,80],[60,620],[W-60,620],[130,350],[W-130,350]];
-  sparkPos.forEach(([sx,sy]) => {
-    ctx.fillStyle = "rgba(255,209,102,0.5)";
-    ctx.font = "24px sans-serif";
-    ctx.fillText("✦", sx-8, sy+8);
+  // Sparkle confetti — mixed glyphs, varied size/opacity for a livelier feel
+  const sparkles: [number, number, number, number, string][] = [
+    [70, 90, 26, 0.55, "✦"], [W - 80, 80, 20, 0.4, "✦"],
+    [50, 640, 18, 0.35, "✦"], [W - 56, 600, 24, 0.5, "✦"],
+    [120, 330, 16, 0.3, "✧"], [W - 140, 300, 22, 0.4, "✧"],
+    [W - 200, 720, 30, 0.35, "💫"], [90, 760, 22, 0.3, "💗"],
+  ];
+  sparkles.forEach(([sx, sy, sz, op, glyph]) => {
+    ctx.globalAlpha = op;
+    ctx.fillStyle = glyph === "💫" || glyph === "💗" ? "#ffffff" : "rgba(255,209,102,1)";
+    ctx.font = `${sz}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(glyph, sx, sy);
+    ctx.globalAlpha = 1;
   });
 
   ctx.textAlign = "center";
 
-  // ── APP BADGE ─────────────────────────────────────────────────────────────
-  const bW=300, bH=46, bX=CX-bW/2, bY=70;
-  ctx.fillStyle = "rgba(255,255,255,0.12)";
-  ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.roundRect(bX,bY,bW,bH,23); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = "rgba(255,255,255,0.75)";
-  ctx.font = "500 18px Poppins, sans-serif";
-  ctx.fillText("KUIS BUCIN 2026", CX, bY+29);
+  // ── APP BADGE ──────────────────────────────────────────────────────────
+  ctx.font = "600 19px Poppins, sans-serif";
+  const badgeLabel = "💘  KUIS BUCIN 2026";
+  const bW = ctx.measureText(badgeLabel).width + 56, bH = 48, bX = CX - bW / 2, bY = 62;
+  ctx.fillStyle = "rgba(255,255,255,0.10)";
+  ctx.strokeStyle = "rgba(255,255,255,0.28)"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(bX, bY, bW, bH, 24); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.fillText(badgeLabel, CX, bY + 31);
 
-  // ── NAMA ─────────────────────────────────────────────────────────────────
-  const namaDisplay = nama.length > 16 ? nama.slice(0,14)+"\u2026" : nama;
-  ctx.font = "900 80px Poppins, sans-serif";
+  // ── AVATAR BUBBLE (initial) ──────────────────────────────────────────────
+  const initial = (nama.trim()[0] || "?").toUpperCase();
+  const avCX = CX, avCY = 202, avR = 58;
+  const avGrad = ctx.createLinearGradient(avCX - avR, avCY - avR, avCX + avR, avCY + avR);
+  avGrad.addColorStop(0, "#FFD166"); avGrad.addColorStop(1, "#FF3D7F");
+  ctx.save();
+  ctx.shadowColor = "rgba(255,61,127,0.6)"; ctx.shadowBlur = 30;
+  ctx.beginPath(); ctx.arc(avCX, avCY, avR + 4, 0, Math.PI * 2);
+  ctx.strokeStyle = avGrad; ctx.lineWidth = 4; ctx.stroke();
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(avCX, avCY, avR, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fill();
+  ctx.font = "800 56px Poppins, sans-serif";
   ctx.fillStyle = "#ffffff";
-  ctx.shadowColor = "rgba(255,61,127,0.7)"; ctx.shadowBlur = 28;
-  ctx.fillText(namaDisplay, CX, 230);
+  ctx.fillText(initial, avCX, avCY + 20);
+
+  // ── NAMA ──────────────────────────────────────────────────────────────
+  const namaDisplay = nama.length > 18 ? nama.slice(0, 16) + "\u2026" : nama;
+  ctx.font = "800 44px Poppins, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(255,61,127,0.6)"; ctx.shadowBlur = 18;
+  ctx.fillText(namaDisplay, CX, 306);
   ctx.shadowBlur = 0;
 
-  // Small underline accent
-  const nW = Math.min(ctx.measureText(namaDisplay).width + 40, 600);
-  const uGrad = ctx.createLinearGradient(CX-nW/2, 0, CX+nW/2, 0);
-  uGrad.addColorStop(0,"rgba(255,209,102,0)");
-  uGrad.addColorStop(0.5,"rgba(255,209,102,0.9)");
-  uGrad.addColorStop(1,"rgba(255,209,102,0)");
-  ctx.fillStyle = uGrad; ctx.fillRect(CX-nW/2, 248, nW, 4);
+  // ── PERCENTAGE — HERO RING ────────────────────────────────────────────
+  const rCX = CX, rCY = 590, rR = 210, rLW = 20;
 
-  // ── PERCENTAGE — HERO ─────────────────────────────────────────────────────
-  // Circular ring track
-  const rCX=CX, rCY=490, rR=230, rLW=14;
-  ctx.beginPath(); ctx.arc(rCX, rCY, rR, 0, Math.PI*2);
-  ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth=rLW; ctx.stroke();
-  // Arc fill
-  const arcStart = -Math.PI/2;
-  const arcEnd = arcStart + (percentage/100) * Math.PI*2;
-  const arcG = ctx.createLinearGradient(rCX-rR, rCY-rR, rCX+rR, rCY+rR);
+  // Outer soft halo behind the ring
+  blob(rCX, rCY, rR + 90, "rgba(255,107,157,ALPHA)", 0.35);
+
+  // Track
+  ctx.beginPath(); ctx.arc(rCX, rCY, rR, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.10)"; ctx.lineWidth = rLW; ctx.stroke();
+
+  // Progress arc
+  const arcStart = -Math.PI / 2;
+  const arcEnd = arcStart + (percentage / 100) * Math.PI * 2;
+  const arcG = ctx.createLinearGradient(rCX - rR, rCY - rR, rCX + rR, rCY + rR);
   arcG.addColorStop(0, "#FFD166"); arcG.addColorStop(0.5, "#FF6B9D"); arcG.addColorStop(1, "#FF3D7F");
+  ctx.save();
+  ctx.shadowColor = "rgba(255,107,157,0.7)"; ctx.shadowBlur = 24;
   ctx.beginPath(); ctx.arc(rCX, rCY, rR, arcStart, arcEnd);
-  ctx.strokeStyle = arcG; ctx.lineWidth = rLW; ctx.lineCap="round"; ctx.stroke();
-  // End dot glow
+  ctx.strokeStyle = arcG; ctx.lineWidth = rLW; ctx.lineCap = "round"; ctx.stroke();
+  ctx.restore();
+
+  // Bright end-cap dot with glow
   const dotX = rCX + rR * Math.cos(arcEnd), dotY = rCY + rR * Math.sin(arcEnd);
-  ctx.beginPath(); ctx.arc(dotX, dotY, rLW*0.8, 0, Math.PI*2);
+  ctx.save();
+  ctx.shadowColor = "rgba(255,209,102,0.9)"; ctx.shadowBlur = 20;
+  ctx.beginPath(); ctx.arc(dotX, dotY, rLW * 0.62, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff"; ctx.fill();
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(dotX, dotY, rLW * 0.4, 0, Math.PI * 2);
   ctx.fillStyle = "#FFD166"; ctx.fill();
 
+  // Inner thin ring for extra polish
+  ctx.beginPath(); ctx.arc(rCX, rCY, rR - rLW / 2 - 10, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.lineWidth = 1.5; ctx.stroke();
+
   // Percentage number inside ring
-  ctx.shadowColor = "rgba(255,61,127,0.5)"; ctx.shadowBlur = 30;
-  const pctG = ctx.createLinearGradient(CX, rCY-120, CX, rCY+60);
-  pctG.addColorStop(0,"#ffffff"); pctG.addColorStop(1,"#FFB4CC");
+  ctx.save();
+  ctx.shadowColor = "rgba(255,61,127,0.55)"; ctx.shadowBlur = 30;
+  const pctG = ctx.createLinearGradient(CX, rCY - 110, CX, rCY + 60);
+  pctG.addColorStop(0, "#ffffff"); pctG.addColorStop(1, "#FFD9E7");
   ctx.fillStyle = pctG;
-  ctx.font = "900 150px Poppins, sans-serif";
-  ctx.fillText(percentage+"%", CX, rCY+50);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.font = "400 24px Poppins, sans-serif";
-  ctx.fillText("tingkat kebucinan", CX, rCY+95);
+  ctx.font = "900 140px Poppins, sans-serif";
+  ctx.fillText(percentage + "%", CX, rCY + 46);
+  ctx.restore();
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "500 24px Poppins, sans-serif";
+  ctx.fillText("tingkat kebucinan", CX, rCY + 88);
 
-  // ── GOLONGAN — bright bottom block ───────────────────────────────────────
-  const golY = H * 0.65 + 30;
+  // ── GOLONGAN — floating rounded card lifted off the background ──────────
+  const cardM = 44, cardY = 900, cardH = H - cardY - 40, cardR = 40;
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.25)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14;
+  const cardG = ctx.createLinearGradient(0, cardY, 0, cardY + cardH);
+  cardG.addColorStop(0, "#FF5FA0"); cardG.addColorStop(1, "#D8006E");
+  ctx.fillStyle = cardG;
+  ctx.beginPath(); ctx.roundRect(cardM, cardY, W - cardM * 2, cardH, cardR); ctx.fill();
+  ctx.restore();
 
-  ctx.fillStyle = "rgba(255,255,255,0.18)";
-  ctx.font = "700 18px Poppins, sans-serif";
-  ctx.letterSpacing = "3px";
-  ctx.fillText("GOLONGAN", CX, golY+20);
-  ctx.letterSpacing = "0px";
+  // subtle inner top highlight on the card
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(cardM, cardY, W - cardM * 2, cardH, cardR); ctx.clip();
+  const hi = ctx.createLinearGradient(0, cardY, 0, cardY + 90);
+  hi.addColorStop(0, "rgba(255,255,255,0.16)"); hi.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = hi; ctx.fillRect(cardM, cardY, W - cardM * 2, 90);
+  ctx.restore();
 
-  const gFs = golonganNama.length > 20 ? 48 : golonganNama.length > 14 ? 56 : 64;
+  const innerCX = CX;
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.font = "700 17px Poppins, sans-serif";
+  ctx.fillText("G  O  L  O  N  G  A  N", innerCX, cardY + 46);
+
+  // Big emoji badge
+  ctx.font = "56px sans-serif";
+  ctx.fillText(emoji, innerCX, cardY + 112);
+
+  const gFs = golonganNama.length > 20 ? 42 : golonganNama.length > 14 ? 50 : 58;
   ctx.font = "900 " + gFs + "px Poppins, sans-serif";
   ctx.fillStyle = "#ffffff";
-  ctx.shadowColor = "rgba(0,0,0,0.2)"; ctx.shadowBlur = 12;
-  const mW = W - 100, ws = golonganNama.split(" ");
-  let l1="", l2="";
-  for (let i=0;i<ws.length;i++){
-    const t=l1+(l1?" ":"")+ws[i];
-    if(ctx.measureText(t).width>mW&&l1){l2=ws.slice(i).join(" ");break;}
-    l1=t;
+  ctx.shadowColor = "rgba(0,0,0,0.2)"; ctx.shadowBlur = 10;
+  const mW = W - cardM * 2 - 80, ws = golonganNama.split(" ");
+  let l1 = "", l2 = "";
+  for (let i = 0; i < ws.length; i++) {
+    const t = l1 + (l1 ? " " : "") + ws[i];
+    if (ctx.measureText(t).width > mW && l1) { l2 = ws.slice(i).join(" "); break; }
+    l1 = t;
   }
-  const lH=gFs*1.2, gTextY=golY+50+(l2?0:lH/2);
-  ctx.fillText(l1, CX, gTextY);
-  if(l2){if(ctx.measureText(l2).width>mW)l2=l2.slice(0,-2)+"\u2026";ctx.fillText(l2,CX,gTextY+lH);}
-  ctx.shadowBlur=0;
+  const lH = gFs * 1.18, gTextY = cardY + 168 + (l2 ? 0 : lH / 2);
+  ctx.fillText(l1, innerCX, gTextY);
+  if (l2) { if (ctx.measureText(l2).width > mW) l2 = l2.slice(0, -2) + "\u2026"; ctx.fillText(l2, innerCX, gTextY + lH); }
+  ctx.shadowBlur = 0;
 
-  // Small tagline
+  // Tagline + URL pill anchored to bottom of card
+  const tagY = cardY + cardH - 112;
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
+  ctx.font = "500 19px Poppins, sans-serif";
+  ctx.fillText("Tes lo di:", innerCX, tagY);
+
+  const uT = url.replace("https://", "").replace(/\/$/, "");
+  ctx.font = "800 25px Poppins, sans-serif";
+  const uPillLabel = uT + "  →";
+  const uW = ctx.measureText(uPillLabel).width + 56, uY = tagY + 18;
+  const pillG = ctx.createLinearGradient(innerCX - uW / 2, 0, innerCX + uW / 2, 0);
+  pillG.addColorStop(0, "#FFD166"); pillG.addColorStop(1, "#FFBC1F");
+  ctx.save();
+  ctx.shadowColor = "rgba(255,209,102,0.5)"; ctx.shadowBlur = 18;
+  ctx.fillStyle = pillG;
+  ctx.beginPath(); ctx.roundRect(innerCX - uW / 2, uY, uW, 52, 26); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "#8B0045";
+  ctx.fillText(uPillLabel, innerCX, uY + 34);
+
+  // Footer handle — sits just inside the bottom of the card
   ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "400 20px Poppins, sans-serif";
-  ctx.fillText("Tes lo di:", CX, golY+210);
+  ctx.font = "500 18px Poppins, sans-serif";
+  ctx.fillText("@ceritagenz", innerCX, cardY + cardH - 22);
 
-  // URL pill on bottom block
-  const uT = url.replace("https://","");
-  ctx.font = "700 24px Poppins, sans-serif";
-  const uW = ctx.measureText(uT).width + 60, uY = golY+230;
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.beginPath(); ctx.roundRect(CX-uW/2,uY,uW,48,24); ctx.fill();
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(uT, CX, uY+30);
+  ctx.restore(); // end outer clip
 
-  // @ceritagenz
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.font = "400 18px Poppins, sans-serif";
-  ctx.fillText("@ceritagenz", CX, H-30);
+  // ── OUTER FRAME BORDER (premium edge) ────────────────────────────────────
+  const borderG = ctx.createLinearGradient(0, 0, W, H);
+  borderG.addColorStop(0, "rgba(255,209,102,0.9)");
+  borderG.addColorStop(0.5, "rgba(255,255,255,0.35)");
+  borderG.addColorStop(1, "rgba(255,61,127,0.9)");
+  ctx.beginPath(); ctx.roundRect(2, 2, W - 4, H - 4, FR); ctx.strokeStyle = borderG; ctx.lineWidth = 4; ctx.stroke();
 
   return new Promise(res => canvas.toBlob(b => res(b), "image/png"));
 }
